@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_manager/screen/Account/create.dart';
 
 class Login extends StatefulWidget {
   const Login({ Key? key }) : super(key: key);
@@ -71,7 +72,7 @@ class _LoginState extends State<Login> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/account/create');
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => CreateAccount()));
                       },
                       child: Text(
                         '계정생성',

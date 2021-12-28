@@ -1,43 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:food_manager/model/item.dart';
-import 'package:uuid/uuid.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class Add extends StatefulWidget {
-  Add({Key? key, required this.selectedCategory, required this.addItem }) : super(key: key);
+class Edit extends StatefulWidget {
+  Edit({Key? key, required this.item, required this.categories, required this.editItem }) : super(key: key);
 
-  String selectedCategory;
-  void Function(Item) addItem;
+  final Item item;
+  List<String> categories;
+  void Function(Item) editItem;
 
   @override
-  _AddState createState() => _AddState(selectedCategory: selectedCategory, addItem: addItem);
+  _EditState createState() => _EditState(item, categories, editItem);
 }
 
-class _AddState extends State<Add> {
-  
-  _AddState({ required this.selectedCategory, required this.addItem });
+class _EditState extends State<Edit> {
+  Item item;
+  List<String> categories;
+  void Function(Item) editItem;
 
-  final String selectedCategory;
-  final void Function(Item) addItem;
+  late String name;
+  late String category;
+  late DateTime selectedDate;
+  late PickedFile _image;
 
-  String name = "";
   final imagePicker = ImagePicker();
-  PickedFile? _image;
-  DateTime selectedDate = DateTime.now();
-
-  var uuid = Uuid();
-
-  // FIXME: 카메라로 추가
+  
+  _EditState(this.item, this.categories, this.editItem) {
+    name = item.name;
+    category = item.category;
+    selectedDate = item.expiration;
+    _image = item.image;
+  }
+  
+  // FIXME: 카메라에서 사진 가져오기
   Future getImageFromCam() async {
     final image = await ImagePicker.platform.pickImage(source: ImageSource.camera);
-    setState(() { _image = image; });
+    setState(() { 
+      if (image != null) {
+        _image = image;
+      }
+    });
   }
 
-  // FIXME: 앨범에서 추가
+  // FIXME: 앨범에서 사진 가져오기
   Future getImageFromGallery() async {
     final image = await ImagePicker.platform.pickImage(source: ImageSource.gallery);
-    setState(() { _image = image; });
+    setState(() { 
+      if (image != null) {
+        _image = image;
+      }
+    });
   }
 
   // FIXME: 빈 값 체크
@@ -70,7 +83,7 @@ class _AddState extends State<Add> {
                   ),
                 ),
                 Text(
-                  "$selectedCategory 추가",
+                  "${item.name} 수정",
                   style: const TextStyle(
                     fontSize: 22.0,
                     fontWeight: FontWeight.w600
@@ -90,24 +103,14 @@ class _AddState extends State<Add> {
                       width: double.infinity,
                       height: 300.0,
                       decoration: BoxDecoration(
-                        image: _image != null ? DecorationImage(
-                          image: FileImage(File(_image!.path)),
+                        image: DecorationImage(
+                          image: FileImage(File(_image.path)),
                           fit: BoxFit.fitWidth
-                        ) : null,
+                        ),
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
                         boxShadow: const [ BoxShadow(color: Colors.grey, spreadRadius: 0.3) ]
                       ),
-                      child: _image == null
-                      ? const Center(
-                        child: Text(
-                          "클릭하여 이미지를 추가해주세요.",
-                          style: TextStyle(
-                            fontSize: 18.0
-                          )
-                        )
-                      )
-                      : null
                     ),
                   )
                 ),
@@ -117,6 +120,7 @@ class _AddState extends State<Add> {
                     children: [
                       // FIXME: 이름
                       TextFormField(
+                        initialValue: name,
                         autocorrect: false,
                         cursorColor: Colors.green[800],
                         decoration: InputDecoration(
@@ -128,6 +132,26 @@ class _AddState extends State<Add> {
                         onChanged: (value) {
                           setState(() { name = value; });
                         }
+                      ),
+                      // FIXME: 카테고리
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: categories.map((elem) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: elem == category ? Colors.green[800] : Colors.black.withOpacity(0.4)
+                                ),
+                                child: Text(elem),
+                                onPressed: () {
+                                  setState(() { category = elem; });
+                                },
+                              ),
+                            );
+                          }).toList()
+                        ),
                       ),
                       // FIXME: 유통기한
                       Padding(
@@ -161,11 +185,11 @@ class _AddState extends State<Add> {
                     ],
                   ),
                 ),
-                // FIXME: 추가하기 버튼
+                // FIXME: 수정하기 버튼
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: ElevatedButton(
-                    child: const Text("추가하기", style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text("수정하기", style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
                       primary: Colors.green[800]
@@ -174,15 +198,14 @@ class _AddState extends State<Add> {
                       bool result = check_input_field();
 
                       if (result) {
-                        Item newItem = Item(
-                          id: uuid.v4(),
-                          name: name,
-                          category: selectedCategory,
-                          expiration: selectedDate,
-                          image: _image!
-                        );
+                        item.name = name;
+                        item.category = category;
+                        item.expiration = selectedDate;
+                        item.image = _image;
 
-                        addItem(newItem);
+                        setState(() {
+                          editItem(item);
+                        });
                         Navigator.of(context).pop();
                       }
                     }

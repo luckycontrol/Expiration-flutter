@@ -3,9 +3,9 @@ import 'package:food_manager/screen/Home/Expire/expire_card.dart';
 import 'package:food_manager/model/item.dart';
 
 class ExpireList extends StatelessWidget {
-  ExpireList({ Key? key, required this.expire_soon_items }) : super(key: key);
+  ExpireList({ Key? key, required this.expire_soon_list }) : super(key: key);
 
-  List<Item> expire_soon_items;
+  List<Item> expire_soon_list;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class ExpireList extends StatelessWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: expire_soon_items.map((item) => ExpireCard(item: item)).toList(),
+                children: expire_soon_list.map((item) => ExpireCard(item: item)).toList(),
               ),
             )
           ],

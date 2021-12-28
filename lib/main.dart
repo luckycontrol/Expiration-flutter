@@ -13,9 +13,7 @@ void main() => runApp(MaterialApp(
   initialRoute: '/home/main',
   routes: {
     '/home/main': (context) => Home(),
-    '/home/option': (context) => Option(),
     '/account/login': (context) => Login(),
-    '/account/create': (context) => CreateAccount(),
   },
 ));
 

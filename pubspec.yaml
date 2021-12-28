@@ -30,6 +30,7 @@ dependencies:
   loading_animations: "^2.1.0"
   flutter_slidable: "^1.0.0"
   image_picker:
+  uuid: ^3.0.5
   flutter:
     sdk: flutter
 

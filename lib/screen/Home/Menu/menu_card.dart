@@ -1,32 +1,43 @@
 import 'package:flutter/material.dart';
 
 class MenuCard extends StatelessWidget {
-  MenuCard({ Key? key, required this.name, required this.selectedCategory, required this.changeCategory }) : super(key: key);
+  MenuCard({ 
+    Key? key, 
+    required this.name,
+    required this.isEdit,
+    required this.selectedCategory,
+    required this.changeCategory 
+  }) : super(key: key);
 
   String name;
+  bool isEdit;
   String selectedCategory;
   void Function(String) changeCategory;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: TextButton(
-        onPressed: () { 
-          changeCategory(name);
-          Navigator.pop(context);
-        },
-        style: TextButton.styleFrom(
-          backgroundColor: selectedCategory == name ? Colors.black.withOpacity(0.4) : Colors.transparent
+    return GestureDetector(
+      onTap: () { 
+        changeCategory(name);
+        Navigator.of(context).pop();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: name == selectedCategory ? Colors.black.withOpacity(0.3) : null,
+          borderRadius: BorderRadius.circular(8.0)
         ),
-        child: Text(
-          name,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: selectedCategory == name ? FontWeight.bold : FontWeight.normal,
-            color: Colors.white,
-          )
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            name,
+            style: TextStyle(
+              fontWeight: name == selectedCategory ? FontWeight.bold : FontWeight.normal,
+              color: Colors.white,
+              fontSize: 18.0
+            )
+          ),
         ),
-      ),
+      )
     );
   }
 }

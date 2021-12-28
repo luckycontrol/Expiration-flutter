@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:food_manager/screen/Home/Edit/edit.dart';
+import 'dart:io';
 
 class ItemCard extends StatelessWidget {
 
   Item item;
-  VoidCallback deleteItem;
+  List<String> categories;
+  void Function(Item) editItem;
+  void Function(Item) removeItem;
   
-  ItemCard({ Key? key, required this.item, required this.deleteItem }) : super(key: key);
+  ItemCard ({ 
+    Key? key, 
+    required this.item,
+    required this.categories,
+    required this.editItem,
+    required this.removeItem
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,15 +25,15 @@ class ItemCard extends StatelessWidget {
       endActionPane: ActionPane(
         motion: DrawerMotion(),
         children: [
-          const SlidableAction(
-            onPressed: null,
+          SlidableAction(
+            onPressed: (context) => Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(item: item, categories: categories, editItem: editItem))),
             label: '수정',
             backgroundColor: Colors.amber,
             foregroundColor: Colors.white
           ),
           SlidableAction(
             onPressed: (context) {
-              deleteItem();
+              showDialog(context: context, builder: buildDeleteModal);
             },
             label: '삭제',
             backgroundColor: Colors.red[400]!,
@@ -42,7 +52,9 @@ class ItemCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const CircleAvatar(
+            // FIXME: 사진
+            CircleAvatar(
+              backgroundImage: FileImage(File(item.image.path)),
               radius: 24
             ),
             Padding(
@@ -65,6 +77,32 @@ class ItemCard extends StatelessWidget {
             )
           ],
         ),
+      )
+    );
+  }
+
+  Widget buildDeleteModal(BuildContext context) {
+    return AlertDialog(
+      title: Text("${item.name}을/를 삭제하실건가요?"),
+      content: Container(
+        height: 80,
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 40),
+                primary: Colors.red[400]
+              ),
+              child: Text("삭제하기"),
+              onPressed: () { 
+                removeItem(item);
+                Navigator.of(context).pop();
+              }
+            )
+          ],
+        )
       )
     );
   }

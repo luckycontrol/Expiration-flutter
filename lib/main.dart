@@ -4,6 +4,7 @@ import 'package:food_manager/screen/Home/home.dart';
 import 'package:food_manager/screen/Home/Option/option.dart';
 import 'package:food_manager/screen/Account/create.dart';
 import 'package:food_manager/screen/Account/login.dart';
+import 'package:food_manager/screen/Test/main.dart';
 
 void main() => runApp(MaterialApp(
   debugShowCheckedModeBanner: false,

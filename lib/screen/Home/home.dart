@@ -25,39 +25,10 @@ class _HomeState extends State<Home> {
 
   ];
 
-  // 삭제 확인 State
-  bool isDelete = false;
-
   // 선택 카테고리 변경
-  void changeCategory(String selectCategory) {
+  void editMainSelectedCategory(String selectCategory) {
     setState(() {
       selectedCategory = selectCategory;
-    });
-  }
-  // 카테고리 추가
-  void addCategory(String newCategoryName) {
-    setState(() {
-      categories.add(newCategoryName);
-    });
-  }
-  // 카테고리 삭제
-  void removeCategory(String categoryName) {
-    setState(() {
-      categories.remove(categoryName);
-    });
-  }
-  // 카테고리 수정
-  void editCategory(String originalName, String newName) {
-    categories.remove(originalName);
-
-    setState(() {
-      categories.add(newName);
-
-      for (var item in item_list) {
-        if (item.category == originalName) {
-          item.category = newName;
-        }
-      }
     });
   }
 
@@ -87,9 +58,8 @@ class _HomeState extends State<Home> {
       drawer: Drawer(
         child: Menu(
           categories: categories, 
-          selectedCategory: selectedCategory, 
-          addCategory: addCategory, 
-          changeCategory: changeCategory
+          selectedCategory: selectedCategory,
+          editMainSelectedCategory: editMainSelectedCategory,
         )
       ),
       appBar: AppBar(

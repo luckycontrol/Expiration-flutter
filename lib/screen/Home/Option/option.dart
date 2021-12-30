@@ -6,6 +6,13 @@ class Option extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("설정"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 3,
+        
+      ),
       body: Center(
         child: Text("OPTION")
       )

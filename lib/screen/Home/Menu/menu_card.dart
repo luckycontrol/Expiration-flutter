@@ -6,17 +6,19 @@ class MenuCard extends StatelessWidget {
     required this.name,
     required this.isEdit,
     required this.selectedCategory,
+    required this.editMainSelectedCategory
   }) : super(key: key);
 
   String name;
   bool isEdit;
   String selectedCategory;
+  void Function(String) editMainSelectedCategory;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () { 
-
+        editMainSelectedCategory(name);
         Navigator.of(context).pop();
       },
       child: Container(

@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:food_manager/screen/loading.dart';
 import 'package:food_manager/screen/Home/home.dart';
-import 'package:food_manager/screen/Home/Option/option.dart';
-import 'package:food_manager/screen/Account/create.dart';
 import 'package:food_manager/screen/Account/login.dart';
-import 'package:food_manager/screen/Test/main.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() => runApp(MaterialApp(
-  debugShowCheckedModeBanner: false,
-  theme: ThemeData(
-    fontFamily: 'Elice'
-  ),
-  initialRoute: '/home/main',
-  routes: {
-    '/home/main': (context) => Home(),
-    '/account/login': (context) => Login(),
-  },
-));
+void main() async { 
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  runApp(MyApp()); 
+}
+
+class MyApp extends StatelessWidget {
+
+  MyApp({Key? key}) : super(key: key);
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: "Elice"
+      ),
+      home: auth.currentUser == null ? Login() : Home()
+    );
+  }
+}
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>603511209626-b1jl978kj2ho1cmnoqhvhs3h1m314qqn.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.603511209626-b1jl978kj2ho1cmnoqhvhs3h1m314qqn</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCx8rD03pCVeBtVHQ5lnkkkaB8guC93jbM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>603511209626</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.luckycontrol.foodManager</string>
+	<key>PROJECT_ID</key>
+	<string>expiration-177e8</string>
+	<key>STORAGE_BUCKET</key>
+	<string>expiration-177e8.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:603511209626:ios:9a6a48dd2c8a4959be6923</string>
+	<key>DATABASE_URL</key>
+	<string>https://expiration-177e8-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

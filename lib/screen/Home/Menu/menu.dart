@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food_manager/screen/Account/login.dart';
 import 'package:food_manager/screen/Home/Menu/menu_card.dart';
 import 'package:food_manager/screen/Home/Option/option.dart';
-import 'package:food_manager/screen/Utils/check_null_duplicate.dart';
+import 'package:food_manager/screen/Utils/alert_dialog.dart';
 import 'package:food_manager/screen/Home/Menu/edit_list.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 class Menu extends StatefulWidget {
   Menu({ 
@@ -45,12 +45,12 @@ class _MenuState extends State<Menu> {
   // FIXME: 카테고리 공백, 중복 체크
   bool check_category_null_duplicate(String elem) {
     if (elem == "") {
-      showDialog(context: context, builder: (context) => CheckCategoryNullDuplicate(message: "카테고리 이름을 기입해주세요!"));
+      showDialog(context: context, builder: (context) => AlertMessageDialog(message: "카테고리 이름을 기입해주세요!"));
       return false;
     }
 
     if (categories.contains(elem)) {
-      showDialog(context: context, builder: (context) => CheckCategoryNullDuplicate(message: "입력하신 카테고리가 이미 있어요!"));
+      showDialog(context: context, builder: (context) => AlertMessageDialog(message: "입력하신 카테고리가 이미 있어요!"));
       return false;
     }
 
@@ -69,6 +69,25 @@ class _MenuState extends State<Menu> {
     setState(() {
       categories[idx] = category;
     });
+  }
+
+  // FIXME: 카테고리 추가
+  void addCategory(String category) {
+    setState(() {
+      categories.add(category);
+    });
+  }
+
+  // FIXME: 카테고리 삭제
+  void removeCategory(String category) {
+    setState(() {
+      categories.remove(category);
+    });
+  }
+  
+  // FIXME: 로그아웃
+  void handleSignOut() {
+    FirebaseAuth.instance.signOut();
   }
 
   @override
@@ -128,11 +147,13 @@ class _MenuState extends State<Menu> {
                               // FIXME: 카테고리 수정 버튼
                               TextButton.icon(
                                 onPressed: () => showModalBottomSheet(context: context, builder: (context) => EditList(
-                                  categories: categories, 
-                                  selectedCategory: selectedCategory,
-                                  editMainSelectedCategory: editMainSelectedCategory,
-                                  editMenuSelectedCategory: editMenuSelectedCategory,
-                                  editMenuCategory: editMenuCategory)
+                                    categories: categories, 
+                                    selectedCategory: selectedCategory,
+                                    editMainSelectedCategory: editMainSelectedCategory,
+                                    editMenuSelectedCategory: editMenuSelectedCategory,
+                                    editMenuCategory: editMenuCategory,
+                                    removeCategory: removeCategory,
+                                  )
                                 ), 
                                 icon: const Icon(Icons.edit, size: 20, color: Colors.white), 
                                 label: const Text(
@@ -155,6 +176,7 @@ class _MenuState extends State<Menu> {
                           name: menu,
                           isEdit: isEdit,
                           selectedCategory: selectedCategory,
+                          editMainSelectedCategory: editMainSelectedCategory,
                         )).toList(),
                       ),
                       const SizedBox(height: 20.0),
@@ -200,7 +222,10 @@ class _MenuState extends State<Menu> {
                                 )
                               ],
                             ),
-                            onTap: () {}
+                            onTap: () {
+                              handleSignOut();
+                              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+                            }
                           )
                         ],
                       ),
@@ -249,6 +274,7 @@ class _MenuState extends State<Menu> {
                 bool result = check_category_null_duplicate(newCategoryName);
 
                 if (result) {
+                  addCategory(newCategoryName);
                   Navigator.of(context).pop();
                 }
               }

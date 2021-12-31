@@ -8,6 +8,7 @@ class EditList extends StatefulWidget {
   void Function(String) editMainSelectedCategory;
   void Function(String) editMenuSelectedCategory;
   void Function(int, String) editMenuCategory;
+  void Function(String) removeCategory;
 
   EditList({ 
     required this.selectedCategory,
@@ -15,6 +16,7 @@ class EditList extends StatefulWidget {
     required this.categories,
     required this.editMenuSelectedCategory,
     required this.editMenuCategory,
+    required this.removeCategory
   });
 
   @override
@@ -24,6 +26,7 @@ class EditList extends StatefulWidget {
     editMainSelectedCategory: editMainSelectedCategory,
     editMenuSelectedCategory: editMenuSelectedCategory,
     editMenuCategory: editMenuCategory,
+    removeCategory: removeCategory
   );
 }
 
@@ -34,13 +37,15 @@ class _EditListState extends State<EditList> {
   void Function(String) editMainSelectedCategory;
   void Function(String) editMenuSelectedCategory;
   void Function(int, String) editMenuCategory;
+  void Function(String) removeCategory;
 
   _EditListState({ 
     required this.selectedCategory,
     required this.categories,
     required this.editMainSelectedCategory,
     required this.editMenuSelectedCategory,
-    required this.editMenuCategory
+    required this.editMenuCategory,
+    required this.removeCategory
   });
 
   void editListCategory(int idx, String category) {
@@ -90,9 +95,8 @@ class _EditListState extends State<EditList> {
                       SlidableAction(
                         label: "삭제",
                         onPressed: (context) {
-                          setState(() {
-                            categories.remove(category);
-                          });
+                          removeCategory(category);
+                          setState(() { categories.remove(category); });
                         },
                         backgroundColor: Colors.red[400]!,
                         foregroundColor: Colors.white,

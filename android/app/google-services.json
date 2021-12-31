@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "603511209626",
+    "firebase_url": "https://expiration-177e8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "expiration-177e8",
+    "storage_bucket": "expiration-177e8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:603511209626:android:fea80f7bd78ea12ebe6923",
+        "android_client_info": {
+          "package_name": "com.luckycontrol.food_manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "603511209626-09viqhq46ud0i7i4v0h5eokn4m62h34h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACSMpKIsWuzZ3HGthJ6ag3kWKNZzPxuCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "603511209626-09viqhq46ud0i7i4v0h5eokn4m62h34h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "603511209626-2o3vlnsg3dlurnaiaq7gef77ur41e194.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "cho.Expiration"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

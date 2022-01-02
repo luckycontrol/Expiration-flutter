@@ -54,7 +54,7 @@ class ItemCard extends StatelessWidget {
           children: [
             // FIXME: 사진
             CircleAvatar(
-              backgroundImage: FileImage(File(item.image.path)),
+              backgroundImage: FileImage(File(item.image)),
               radius: 24
             ),
             Padding(

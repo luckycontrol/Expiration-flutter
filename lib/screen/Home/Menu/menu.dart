@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_manager/screen/Account/login.dart';
 import 'package:food_manager/screen/Home/Menu/menu_card.dart';
 import 'package:food_manager/screen/Home/Option/option.dart';
@@ -8,18 +9,24 @@ import 'package:food_manager/screen/Home/Menu/edit_list.dart';
 
 class Menu extends StatefulWidget {
   Menu({ 
-    Key? key, 
+    Key? key,
+    required this.email,
+    required this.nickname,
     required this.categories, 
     required this.selectedCategory,
     required this.editMainSelectedCategory
   }) : super(key: key);
 
+  String email;
+  String nickname;
   List<String> categories;
   String selectedCategory;
   void Function(String) editMainSelectedCategory;
 
   @override
   State<Menu> createState() => _MenuState(
+    email: email,
+    nickname: nickname,
     categories: categories, 
     selectedCategory: selectedCategory,
     editMainSelectedCategory: editMainSelectedCategory
@@ -28,6 +35,8 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
 
+  String email;
+  String nickname;
   List<String> categories;
   String selectedCategory;
   void Function(String) editMainSelectedCategory;
@@ -36,7 +45,9 @@ class _MenuState extends State<Menu> {
   bool isDelete = false;
   String deleteCategoryName = "";
 
-  _MenuState({ 
+  _MenuState({
+    required this.email,
+    required this.nickname,
     required this.categories, 
     required this.selectedCategory,
     required this.editMainSelectedCategory,
@@ -107,9 +118,9 @@ class _MenuState extends State<Menu> {
               crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // FIXME: 인사 문구
-                  const Text(
-                    '안녕하세요, \n종운님.',
-                    style: TextStyle(
+                  Text(
+                    '안녕하세요, \n$nickname님.',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
                       color: Colors.white,

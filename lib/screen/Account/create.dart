@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:food_manager/screen/Utils/alert_dialog.dart';
+import 'package:food_manager/screen/Home/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({ Key? key }) : super(key: key);
@@ -21,32 +23,42 @@ class _CreateAccountState extends State<CreateAccount> {
     "email-already-in-use": "입력하신 이메일이 이미 사용되고 있습니다."
   };
 
-  void handleCreateAccount(String email, String nickname, String password) async {
-    if (email == "") {
-      showDialog(context: context, builder: (context) => AlertMessageDialog(message: "이메일을 입력해주세요."));
-      return;
-    }
-
-    if (nickname == "") {
-      showDialog(context: context, builder: (context) => AlertMessageDialog(message: "이름 / 별명을 입력해주세요."));
-      return;
-    }
-
-    if (password == "") {
-      showDialog(context: context, builder: (context) => AlertMessageDialog(message: "비밀번호를 입력해주세요."));
-      return;
-    }
-
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-    } on FirebaseAuthException catch(e) {
-      String errMessage = messages[e.code]!;
-      showDialog(context: context, builder: (context) => AlertMessageDialog(message: errMessage));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+
+    void handleCreateAccount(String email, String nickname, String password) async {
+      if (email == "") {
+        showDialog(context: context, builder: (context) => AlertMessageDialog(message: "이메일을 입력해주세요."));
+        return;
+      }
+
+      if (nickname == "") {
+        showDialog(context: context, builder: (context) => AlertMessageDialog(message: "이름 / 별명을 입력해주세요."));
+        return;
+      }
+
+      if (password == "") {
+        showDialog(context: context, builder: (context) => AlertMessageDialog(message: "비밀번호를 입력해주세요."));
+        return;
+      }
+
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+
+        // FIXME: 카테고리 initialize
+        CollectionReference ref = FirebaseFirestore.instance.collection(email);
+        await ref
+              .doc("category")
+              .set({"categories": ["정육", "채소", "생선"]})
+              .then((value) { Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home())); })
+              .catchError((error) { print(error); });
+
+      } on FirebaseAuthException catch(e) {
+        String errMessage = messages[e.code]!;
+        showDialog(context: context, builder: (context) => AlertMessageDialog(message: errMessage));
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('계정생성'),
@@ -102,12 +114,15 @@ class _CreateAccountState extends State<CreateAccount> {
                 ),
               ),
               const Spacer(),
+              // FIXME: 생성버튼
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 40),
                   primary: Colors.green
                 ),
-                onPressed: () { handleCreateAccount(email, nickname, password); }, 
+                onPressed: () { 
+                  handleCreateAccount(email, nickname, password);
+                }, 
                 child: const Text('계정 생성')
               )
             ],

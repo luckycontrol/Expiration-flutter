@@ -22,7 +22,7 @@ class _EditState extends State<Edit> {
   late String name;
   late String category;
   late DateTime selectedDate;
-  late PickedFile _image;
+  late String _image;
 
   final imagePicker = ImagePicker();
   
@@ -38,7 +38,7 @@ class _EditState extends State<Edit> {
     final image = await ImagePicker.platform.pickImage(source: ImageSource.camera);
     setState(() { 
       if (image != null) {
-        _image = image;
+        _image = image.path;
       }
     });
   }
@@ -48,7 +48,7 @@ class _EditState extends State<Edit> {
     final image = await ImagePicker.platform.pickImage(source: ImageSource.gallery);
     setState(() { 
       if (image != null) {
-        _image = image;
+        _image = image.path;
       }
     });
   }
@@ -104,7 +104,7 @@ class _EditState extends State<Edit> {
                       height: 300.0,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: FileImage(File(_image.path)),
+                          image: FileImage(File(_image)),
                           fit: BoxFit.fitWidth
                         ),
                         borderRadius: BorderRadius.circular(10),

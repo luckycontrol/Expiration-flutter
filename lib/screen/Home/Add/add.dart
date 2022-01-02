@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
 
 class Add extends StatefulWidget {
-  Add({Key? key, required this.selectedCategory, required this.addItem }) : super(key: key);
+  Add({ 
+    Key? key,
+    required this.selectedCategory, 
+    required this.addItem 
+  }) : super(key: key);
 
   String selectedCategory;
   void Function(Item) addItem;
@@ -16,7 +22,10 @@ class Add extends StatefulWidget {
 
 class _AddState extends State<Add> {
   
-  _AddState({ required this.selectedCategory, required this.addItem });
+  _AddState({
+    required this.selectedCategory, 
+    required this.addItem 
+  });
 
   final String selectedCategory;
   final void Function(Item) addItem;
@@ -179,7 +188,7 @@ class _AddState extends State<Add> {
                           name: name,
                           category: selectedCategory,
                           expiration: selectedDate,
-                          image: _image!
+                          image: _image!.path
                         );
 
                         addItem(newItem);

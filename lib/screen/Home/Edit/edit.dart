@@ -23,6 +23,7 @@ class _EditState extends State<Edit> {
   late String category;
   late DateTime selectedDate;
   late String _image;
+  bool isChanged = false;
 
   final imagePicker = ImagePicker();
   
@@ -39,6 +40,7 @@ class _EditState extends State<Edit> {
     setState(() { 
       if (image != null) {
         _image = image.path;
+        isChanged = true;
       }
     });
   }
@@ -49,6 +51,7 @@ class _EditState extends State<Edit> {
     setState(() { 
       if (image != null) {
         _image = image.path;
+        isChanged = true;
       }
     });
   }
@@ -104,7 +107,7 @@ class _EditState extends State<Edit> {
                       height: 300.0,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: FileImage(File(_image)),
+                          image: isChanged ? FileImage(File(_image)) as ImageProvider : NetworkImage(_image),
                           fit: BoxFit.fitWidth
                         ),
                         borderRadius: BorderRadius.circular(10),

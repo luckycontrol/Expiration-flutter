@@ -35,46 +35,109 @@ class _HomeState extends State<Home> {
 
   // 품목 추가
   void addItem(Item item) async {
+    // cloude storage에 이미지 저장
+    try {
+      await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").putFile(File(item.image));
+    } on FirebaseException catch(e) {
+      print(e);
+    }
+    
+    // cloude storage에서 이미지 링크 로드
+    String imgURL = await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").getDownloadURL();
+    // 새로운 item 객체 생성 ( 이미지 링크를 클라우드 이미지 링크로 변경 )
+    Item _item = Item(
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      expiration: item.expiration,
+      image: imgURL
+    );
+
+    // 아이템 목록에 추가
     setState(() {
-      item_list.add(item);
+      item_list.add(_item);
     });
 
-    var items = item_list.map((i) {
-      return i.toJson();
+    // item_list를 json으로 변경
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) {
+      Item _itemExchange = Item(
+        id: _item.id,
+        name: _item.name,
+        category: _item.category,
+        expiration: _item.expiration,
+        image: _item.image
+      );
+
+      return _itemExchange.toJson();
     }).toList();
 
+    // item_list를 firestore에 저장
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
-    ref.set({"product": items});
-    
-    // for (Item i in item_list) {
-    //   try {
-    //     firebase_storage.FirebaseStorage.instance.ref("product/$email/${i.id}.png").putFile(File(i.image.path));
-    //   } on FirebaseException catch(e) {
-    //     print(e);
-    //   }
-    // }
+    ref.set({"product": _item_list});
   }
   // 품목 삭제
   void removeItem(Item removeItem) {
     setState(() {
       item_list = item_list.where((item) => item.id != removeItem.id).toList();
     });
+
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) {
+      ItemExchange _itemExchange = ItemExchange(
+        id: _item.id,
+        name: _item.name,
+        category: _item.category,
+        expiration: _item.expiration
+      );
+
+      return _itemExchange.toJson();
+    }).toList();
+
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
-    ref.set({"product": item_list});
+    ref.set({"product": _item_list});
+    try {
+      firebase_storage.FirebaseStorage.instance.ref("product/$email/${removeItem.id}").delete();
+    } on FirebaseException catch(e) {
+      print(e);
+    }
   }
   // 품목 수정
-  void editItem(Item editItem) {
+  void editItem(Item editItem) async {
+    // cloud storage에 이미지 저장
+    try {
+      firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").putFile(File(editItem.image));
+    } on FirebaseException catch(e) {
+      print(e);
+    }
+
+    // cloud storage의 이미지 경로 로드
+    String imgURL = await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").getDownloadURL();
+    // 새로운 Item 생성
+    Item _item = Item(
+      id: editItem.id,
+      name: editItem.name,
+      category: editItem.category,
+      expiration: editItem.expiration,
+      image: imgURL
+    );
+
+    // 기존 리스트에서 수정된 아이템 삭제
     item_list = item_list.where((item) => item.id != editItem.id).toList();
+
+    // 기존 아이템 리스트에 수정된 아이템 추가
     setState(() {
-      item_list.add(editItem);
+      item_list.add(_item);
     });
+
+    // 아이템 리스트를 json으로 변경
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
+
+    // firestore에 json 저장
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
-    ref.set({"product": item_list});
+    ref.set({"product": _item_list});
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     
     void init() async {
@@ -83,30 +146,40 @@ class _HomeState extends State<Home> {
       DocumentReference categoryRef = FirebaseFirestore.instance.collection(_email).doc("category");
       DocumentReference productRef = FirebaseFirestore.instance.collection(_email).doc("product");
       
-      userRef.get().then((snapshot) {
+      // 닉네임 가져오기
+      String _nickname = await userRef
+      .get()
+      .then((snapshot) {
         Map<String, dynamic> _nickname = snapshot.data() as Map<String, dynamic>;
-        setState(() {
-          email = _email;
-          nickname = _nickname["nickname"];
-        });
+        return _nickname["nickname"];
       });
 
-      categoryRef.get().then((snapshot) {
+      // 카테고리 가져오기
+      List<String> _categories = await categoryRef
+      .get()
+      .then((snapshot) {
         Map<String, dynamic> _categories = snapshot.data() as Map<String, dynamic>;
-        setState(() {
-          categories = (_categories["categories"] as List).map((item) => item as String).toList();
-          selectedCategory = categories[0];
-        });
+        return (_categories["categories"] as List).map((item) => item as String).toList();
       });
 
-      productRef.get().then((snapshot) {
+      // 품목 가져오기
+      List<Item> _item_list = await productRef
+      .get()
+      .then((snapshot) {
+        if (!snapshot.exists) return [];
+
         Map<String, dynamic> _product = snapshot.data() as Map<String, dynamic>;
-        List<Item> _item_list = (_product["product"] as List).map((item) => Item.fromJson(item)).toList();
-        setState(() {
-          item_list = _item_list;
-        });
+        return (_product["product"] as List).map((_item) => Item.fromJson(_item)).toList();
       });
-      
+
+      // 상태설정
+      setState(() {
+        email = _email;
+        nickname = _nickname;
+        categories = _categories;
+        selectedCategory = _categories[0];
+        item_list = _item_list;
+      });
     }
 
     init();

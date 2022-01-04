@@ -8,16 +8,34 @@ class ItemCard extends StatelessWidget {
 
   Item item;
   List<String> categories;
-  void Function(Item) editItem;
+  void Function(Item, bool) editItem;
   void Function(Item) removeItem;
+
+  List<String> statusList = ["일주일.png", "사흘.png", "하루.png", "지남.png"];
+  int status = 0;
   
-  ItemCard ({ 
-    Key? key, 
-    required this.item,
-    required this.categories,
-    required this.editItem,
-    required this.removeItem
-  }) : super(key: key);
+  ItemCard (this.item, this.categories, this.editItem, this.removeItem, {Key? key}) : super(key: key) {
+    DateTime now = DateTime.now();
+    DateTime beforeAweek = now.add(const Duration(days: 7));
+    DateTime beforeAthree = now.add(const Duration(days: 3));
+    DateTime beforeAday = now.add(const Duration(days: 1));
+
+    if (item.expiration.isAfter(beforeAweek)) {
+      status = 0;
+    }
+    else if (item.expiration.isAfter(beforeAthree)) {
+      status = 1;
+    }
+    else if (item.expiration.isAfter(beforeAday)) {
+      status = 2;
+    }
+    else if (item.expiration.day == now.day){
+      status = 2;
+    }
+    else if (item.expiration.isBefore(now)) {
+      status = 3;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +70,7 @@ class ItemCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // FIXME: 사진
+            // 사진
             CircleAvatar(
               backgroundImage: NetworkImage(item.image),
               radius: 24
@@ -62,10 +80,18 @@ class ItemCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name, style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600
-                  )),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(item.name, style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600
+                      )),
+                      const SizedBox(width: 8),
+                      Image.asset("assets/expiration/${statusList[status]}", width: 12, height: 12)
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     "${item.expiration.year}년 ${item.expiration.month}월 ${item.expiration.day}일 까지", 
                     style: const TextStyle(
@@ -83,7 +109,7 @@ class ItemCard extends StatelessWidget {
 
   Widget buildDeleteModal(BuildContext context) {
     return AlertDialog(
-      title: Text("${item.name}을/를 삭제하실건가요?"),
+      title: Text("${item.name} 을/를 삭제하실건가요?"),
       content: Container(
         height: 80,
         child: Column(

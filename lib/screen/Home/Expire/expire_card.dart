@@ -11,10 +11,23 @@ class ExpireCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: CircleAvatar(
-        radius: 25,
-        child: Text('Test'),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: NetworkImage(item.image)
+          ),
+          const SizedBox(height: 10),
+          Text(item.name)
+        ],
       ),
+    );
+  }
+
+  // 유통기한이 얼마 안남은 품목 확인하는 위젯
+  Widget checkProduct(BuildContext context) {
+    return Container(
+      
     );
   }
 }

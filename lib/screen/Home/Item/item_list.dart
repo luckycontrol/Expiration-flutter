@@ -13,7 +13,7 @@ class ItemList extends StatelessWidget {
 
   List<Item> item_list;
   List<String> categories;
-  void Function(Item) editItem;
+  void Function(Item, bool) editItem;
   void Function(Item) removeItem;
 
   @override
@@ -21,7 +21,7 @@ class ItemList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
       child: Column(
-        children: item_list.map((item) => ItemCard(item: item, categories: categories, editItem: editItem, removeItem: removeItem)).toList(),
+        children: item_list.map((item) => ItemCard(item, categories, editItem, removeItem)).toList(),
       )
     );
   }

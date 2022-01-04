@@ -101,16 +101,18 @@ class _HomeState extends State<Home> {
     }
   }
   // 품목 수정
-  void editItem(Item editItem) async {
-    // cloud storage에 이미지 저장
-    try {
-      firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").putFile(File(editItem.image));
-    } on FirebaseException catch(e) {
-      print(e);
+  void editItem(Item editItem, bool isChanged) async {
+    if (isChanged) {
+      // cloud storage에 이미지 저장
+      try {
+        await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").putFile(File(editItem.image));
+      } on FirebaseException catch(e) {
+        print(e);
+      }
     }
 
     // cloud storage의 이미지 경로 로드
-    String imgURL = await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").getDownloadURL();
+    String imgURL = isChanged ? await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").getDownloadURL() : editItem.image;
     // 새로운 Item 생성
     Item _item = Item(
       id: editItem.id,
@@ -140,6 +142,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     
+    // initialize
     void init() async {
       String _email = FirebaseAuth.instance.currentUser!.email!;
       DocumentReference userRef = FirebaseFirestore.instance.collection(_email).doc("user");
@@ -215,7 +218,13 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             // FIXME: 유통기한이 곧 끝나가는 품목들
-            if (expire_soon_list.isNotEmpty) ExpireList(expire_soon_list: expire_soon_list),
+            ExpireList(
+              expire_soon_list: item_list.where((item) {
+                DateTime now = DateTime.now();
+                DateTime beforeAthree = now.add(const Duration(days: 3));
+                return item.expiration.isBefore(beforeAthree);
+              }).toList()
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
               // FIXME: 카테고리에 저장된 품목들 목록

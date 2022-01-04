@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: "Elice"
+        fontFamily: "esamanru"
       ),
       home: auth.currentUser == null ? Login() : Home()
     );

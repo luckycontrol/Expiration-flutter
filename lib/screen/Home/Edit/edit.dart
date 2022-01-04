@@ -8,7 +8,7 @@ class Edit extends StatefulWidget {
 
   final Item item;
   List<String> categories;
-  void Function(Item) editItem;
+  void Function(Item, bool) editItem;
 
   @override
   _EditState createState() => _EditState(item, categories, editItem);
@@ -17,7 +17,7 @@ class Edit extends StatefulWidget {
 class _EditState extends State<Edit> {
   Item item;
   List<String> categories;
-  void Function(Item) editItem;
+  void Function(Item, bool) editItem;
 
   late String name;
   late String category;
@@ -136,24 +136,40 @@ class _EditState extends State<Edit> {
                           setState(() { name = value; });
                         }
                       ),
+                      const SizedBox(height: 20),
                       // FIXME: 카테고리
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: categories.map((elem) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: elem == category ? Colors.green[800] : Colors.black.withOpacity(0.4)
-                                ),
-                                child: Text(elem),
-                                onPressed: () {
-                                  setState(() { category = elem; });
-                                },
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "카테고리 변경",
+                              style: TextStyle(
+                                color: Colors.green[800],
+                                fontSize: 16
+                              )
+                            ),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: categories.map((elem) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: elem == category ? Colors.green[800] : Colors.black.withOpacity(0.4)
+                                      ),
+                                      child: Text(elem),
+                                      onPressed: () {
+                                        setState(() { category = elem; });
+                                      },
+                                    ),
+                                  );
+                                }).toList()
                               ),
-                            );
-                          }).toList()
+                            ),
+                          ],
                         ),
                       ),
                       // FIXME: 유통기한
@@ -207,8 +223,9 @@ class _EditState extends State<Edit> {
                         item.image = _image;
 
                         setState(() {
-                          editItem(item);
+                          editItem(item, isChanged);
                         });
+
                         Navigator.of(context).pop();
                       }
                     }

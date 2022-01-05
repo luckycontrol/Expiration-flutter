@@ -9,7 +9,9 @@ class ExpireList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return expire_soon_list.isEmpty
+    ? const SizedBox.shrink()
+    : Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
         child: Column(

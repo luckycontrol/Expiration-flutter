@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:food_manager/model/item.dart';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/ProductController.dart';
 import 'package:uuid/uuid.dart';
+import 'package:get/get.dart';
 import 'dart:io';
 
 class Add extends StatefulWidget {
   Add({ 
     Key? key,
     required this.selectedCategory, 
-    required this.addItem 
   }) : super(key: key);
 
   String selectedCategory;
-  void Function(Item) addItem;
 
   @override
-  _AddState createState() => _AddState(selectedCategory: selectedCategory, addItem: addItem);
+  _AddState createState() => _AddState(selectedCategory: selectedCategory);
 }
 
 class _AddState extends State<Add> {
   
   _AddState({
     required this.selectedCategory, 
-    required this.addItem 
   });
 
   final String selectedCategory;
-  final void Function(Item) addItem;
+  final UserController uc = Get.find();
+  final ProductController pc = Get.find();
 
   String name = "";
   final imagePicker = ImagePicker();
@@ -189,7 +190,7 @@ class _AddState extends State<Add> {
                           image: _image!.path
                         );
 
-                        addItem(newItem);
+                        pc.addItem(uc.email, newItem);
                         Navigator.of(context).pop();
                       }
                     }

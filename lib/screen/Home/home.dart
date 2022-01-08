@@ -1,14 +1,17 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:food_manager/screen/Home/Expire/expire_list.dart';
 import 'package:food_manager/screen/Home/Item/item_list.dart';
 import 'package:food_manager/screen/Home/Menu/menu.dart';
 import 'package:food_manager/screen/Home/Add/add.dart';
 import 'package:food_manager/model/item.dart';
+import 'package:food_manager/get/ProductController.dart';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/CategoryController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'dart:io';
+import 'package:get/get.dart';
 
 class Home extends StatefulWidget {
   Home({ Key? key }) : super(key: key);
@@ -26,6 +29,10 @@ class _HomeState extends State<Home> {
   List<Item> expire_soon_list = [];
   List<Item> item_list = [];
 
+  final ProductController pc = Get.put(ProductController());
+  final CategoryController cc = Get.put(CategoryController());
+  final UserController uc = Get.put(UserController());
+
   // 선택 카테고리 변경
   void editMainSelectedCategory(String selectCategory) {
     setState(() {
@@ -33,48 +40,6 @@ class _HomeState extends State<Home> {
     });
   }
 
-  // 품목 추가
-  void addItem(Item item) async {
-    // cloude storage에 이미지 저장
-    try {
-      await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").putFile(File(item.image));
-    } on FirebaseException catch(e) {
-      print(e);
-    }
-    
-    // cloude storage에서 이미지 링크 로드
-    String imgURL = await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").getDownloadURL();
-    // 새로운 item 객체 생성 ( 이미지 링크를 클라우드 이미지 링크로 변경 )
-    Item _item = Item(
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      expiration: item.expiration,
-      image: imgURL
-    );
-
-    // 아이템 목록에 추가
-    setState(() {
-      item_list.add(_item);
-    });
-
-    // item_list를 json으로 변경
-    List<Map<String, dynamic>> _item_list = item_list.map((_item) {
-      Item _itemExchange = Item(
-        id: _item.id,
-        name: _item.name,
-        category: _item.category,
-        expiration: _item.expiration,
-        image: _item.image
-      );
-
-      return _itemExchange.toJson();
-    }).toList();
-
-    // item_list를 firestore에 저장
-    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
-    ref.set({"product": _item_list});
-  }
   // 품목 삭제
   void removeItem(Item removeItem) {
     setState(() {
@@ -145,44 +110,11 @@ class _HomeState extends State<Home> {
     // initialize
     void init() async {
       String _email = FirebaseAuth.instance.currentUser!.email!;
-      DocumentReference userRef = FirebaseFirestore.instance.collection(_email).doc("user");
-      DocumentReference categoryRef = FirebaseFirestore.instance.collection(_email).doc("category");
-      DocumentReference productRef = FirebaseFirestore.instance.collection(_email).doc("product");
-      
-      // 닉네임 가져오기
-      String _nickname = await userRef
-      .get()
-      .then((snapshot) {
-        Map<String, dynamic> _nickname = snapshot.data() as Map<String, dynamic>;
-        return _nickname["nickname"];
-      });
 
-      // 카테고리 가져오기
-      List<String> _categories = await categoryRef
-      .get()
-      .then((snapshot) {
-        Map<String, dynamic> _categories = snapshot.data() as Map<String, dynamic>;
-        return (_categories["categories"] as List).map((item) => item as String).toList();
-      });
-
-      // 품목 가져오기
-      List<Item> _item_list = await productRef
-      .get()
-      .then((snapshot) {
-        if (!snapshot.exists) return [];
-
-        Map<String, dynamic> _product = snapshot.data() as Map<String, dynamic>;
-        return (_product["product"] as List).map((_item) => Item.fromJson(_item)).toList();
-      });
-
-      // 상태설정
-      setState(() {
-        email = _email;
-        nickname = _nickname;
-        categories = _categories;
-        selectedCategory = _categories[0];
-        item_list = _item_list;
-      });
+      await uc.setEmail(_email);
+      await uc.setNickname();
+      await cc.initialize(_email);
+      await pc.initialize(_email);
     }
 
     init();
@@ -209,7 +141,7 @@ class _HomeState extends State<Home> {
           // 추가 아이콘
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Add(selectedCategory: selectedCategory, addItem: addItem)))
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Add(selectedCategory: selectedCategory)))
           )
         ],
       ),
@@ -219,7 +151,7 @@ class _HomeState extends State<Home> {
           children: [
             // FIXME: 유통기한이 곧 끝나가는 품목들
             ExpireList(
-              expire_soon_list: item_list.where((item) {
+              expire_soon_list: pc.item_list.where((item) {
                 DateTime now = DateTime.now();
                 DateTime beforeAthree = now.add(const Duration(days: 3));
                 return item.expiration.isBefore(beforeAthree);
@@ -229,7 +161,7 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
               // FIXME: 카테고리에 저장된 품목들 목록
               child: ItemList(
-                item_list: item_list.where((item) => item.category == selectedCategory).toList(), 
+                item_list: pc.item_list.where((item) => item.category == selectedCategory).toList(), 
                 categories: categories,
                 editItem: editItem,
                 removeItem: removeItem

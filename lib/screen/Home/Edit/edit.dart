@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/CategoryController.dart';
+import 'package:food_manager/get/ProductController.dart';
+import 'package:get/get.dart';
 import 'dart:io';
 
 class Edit extends StatefulWidget {
-  Edit({Key? key, required this.item, required this.categories, required this.editItem }) : super(key: key);
+  Edit({Key? key, required this.item }) : super(key: key);
 
   final Item item;
-  List<String> categories;
-  void Function(Item, bool) editItem;
 
   @override
-  _EditState createState() => _EditState(item, categories, editItem);
+  _EditState createState() => _EditState(item);
 }
 
 class _EditState extends State<Edit> {
+
+  final UserController uc = Get.find();
+  final ProductController pc = Get.find();
+  final CategoryController cc = Get.find();
+
   Item item;
-  List<String> categories;
-  void Function(Item, bool) editItem;
 
   late String name;
   late String category;
@@ -27,7 +32,7 @@ class _EditState extends State<Edit> {
 
   final imagePicker = ImagePicker();
   
-  _EditState(this.item, this.categories, this.editItem) {
+  _EditState(this.item) {
     name = item.name;
     category = item.category;
     selectedDate = item.expiration;
@@ -153,7 +158,7 @@ class _EditState extends State<Edit> {
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
-                                children: categories.map((elem) {
+                                children: cc.categories.map((elem) {
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: ElevatedButton(
@@ -223,7 +228,7 @@ class _EditState extends State<Edit> {
                         item.image = _image;
 
                         setState(() {
-                          editItem(item, isChanged);
+                          pc.editItem(uc.email as String, item, isChanged);
                         });
 
                         Navigator.of(context).pop();

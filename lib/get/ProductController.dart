@@ -21,6 +21,7 @@ class ProductController extends GetxController {
     });
 
     item_list = _item_list;
+    update();
   }
 
   // 아이템 추가
@@ -42,6 +43,7 @@ class ProductController extends GetxController {
     );
 
     item_list.add(_item);
+    update();
 
     List<Map<String, dynamic>> _item_list = item_list.map((_item) {
       Item _itemExchange = Item(
@@ -57,5 +59,58 @@ class ProductController extends GetxController {
 
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
     ref.set({"product": _item_list });
+  }
+
+  // 아이템 수정
+  editItem(String email, Item editItem, bool isChanged) async {
+    if (isChanged) {
+      // cloud storage에 이미지 저장
+      try {
+        await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").putFile(File(editItem.image));
+      } on FirebaseException catch(e) {
+        print(e);
+      }
+    }
+
+    // cloud storage의 이미지 경로 로드
+    String imgURL = isChanged ? await firebase_storage.FirebaseStorage.instance.ref("product/$email/${editItem.id}.png").getDownloadURL() : editItem.image;
+    // 새로운 Item 생성
+    Item _item = Item(
+      id: editItem.id,
+      name: editItem.name,
+      category: editItem.category,
+      expiration: editItem.expiration,
+      image: imgURL
+    );
+
+    // 기존 리스트에서 수정된 아이템 삭제
+    item_list = item_list.where((item) => item.id != editItem.id).toList();
+    update();
+
+    // 아이템 리스트를 json으로 변경
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
+
+    // firestore에 json 저장
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    ref.set({"product": _item_list });
+  }
+
+  // 아이템 삭제
+  removeItem(String email, Item removeItem) {
+    item_list = item_list.where((item) => item.id != removeItem.id).toList();
+    update();
+
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
+    
+    // cloud firestore에 저장
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    ref.set({"product": _item_list});
+
+    // 이미지 삭제
+    try {
+      firebase_storage.FirebaseStorage.instance.ref("product/$email/${removeItem.id}").delete();
+    } on FirebaseException catch(e) {
+      print(e);
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/CategoryController.dart';
 import 'package:food_manager/get/ProductController.dart';
 import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
@@ -10,23 +11,18 @@ import 'dart:io';
 class Add extends StatefulWidget {
   Add({ 
     Key? key,
-    required this.selectedCategory, 
   }) : super(key: key);
 
-  String selectedCategory;
-
   @override
-  _AddState createState() => _AddState(selectedCategory: selectedCategory);
+  _AddState createState() => _AddState();
 }
 
 class _AddState extends State<Add> {
   
-  _AddState({
-    required this.selectedCategory, 
-  });
+  _AddState();
 
-  final String selectedCategory;
   final UserController uc = Get.find();
+  final CategoryController cc = Get.find();
   final ProductController pc = Get.find();
 
   String name = "";
@@ -78,7 +74,7 @@ class _AddState extends State<Add> {
                   ),
                 ),
                 Text(
-                  "$selectedCategory 추가",
+                  "${cc.selectedCategory} 추가",
                   style: const TextStyle(
                     fontSize: 22.0,
                     fontWeight: FontWeight.w600
@@ -185,12 +181,12 @@ class _AddState extends State<Add> {
                         Item newItem = Item(
                           id: uuid.v4(),
                           name: name,
-                          category: selectedCategory,
+                          category: cc.selectedCategory.value,
                           expiration: selectedDate,
                           image: _image!.path
                         );
 
-                        pc.addItem(uc.email, newItem);
+                        pc.addItem(uc.email as String, newItem);
                         Navigator.of(context).pop();
                       }
                     }

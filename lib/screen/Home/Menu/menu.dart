@@ -1,57 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_manager/screen/Account/login.dart';
 import 'package:food_manager/screen/Home/Menu/menu_card.dart';
 import 'package:food_manager/screen/Home/Option/option.dart';
 import 'package:food_manager/screen/Utils/alert_dialog.dart';
 import 'package:food_manager/screen/Home/Menu/edit_list.dart';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/CategoryController.dart';
+import 'package:get/get.dart';
 
 class Menu extends StatefulWidget {
   Menu({ 
     Key? key,
-    required this.email,
-    required this.nickname,
-    required this.categories, 
-    required this.selectedCategory,
-    required this.editMainSelectedCategory
   }) : super(key: key);
 
-  String email;
-  String nickname;
-  List<String> categories;
-  String selectedCategory;
-  void Function(String) editMainSelectedCategory;
-
   @override
-  State<Menu> createState() => _MenuState(
-    email: email,
-    nickname: nickname,
-    categories: categories, 
-    selectedCategory: selectedCategory,
-    editMainSelectedCategory: editMainSelectedCategory
-  );
+  State<Menu> createState() => _MenuState();
 }
 
 class _MenuState extends State<Menu> {
 
-  String email;
-  String nickname;
-  List<String> categories;
-  String selectedCategory;
-  void Function(String) editMainSelectedCategory;
+  final UserController uc = Get.find();
+  final CategoryController cc = Get.find();
 
   bool isEdit = false;
   bool isDelete = false;
   String deleteCategoryName = "";
 
-  _MenuState({
-    required this.email,
-    required this.nickname,
-    required this.categories, 
-    required this.selectedCategory,
-    required this.editMainSelectedCategory,
-  });
+  _MenuState();
 
   // FIXME: 카테고리 공백, 중복 체크
   bool check_category_null_duplicate(String elem) {
@@ -60,40 +36,12 @@ class _MenuState extends State<Menu> {
       return false;
     }
 
-    if (categories.contains(elem)) {
+    if (cc.categories.contains(elem)) {
       showDialog(context: context, builder: (context) => AlertMessageDialog(message: "입력하신 카테고리가 이미 있어요!"));
       return false;
     }
 
     return true;
-  }
-
-  // FIXME: 메뉴화면 선택된 카테고리 수정
-  void editMenuSelectedCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-  }
-
-  // FIXME: 메뉴화면 카테고리 수정
-  void editMenuCategory(int idx, String category) {
-    setState(() {
-      categories[idx] = category;
-    });
-  }
-
-  // FIXME: 카테고리 추가
-  void addCategory(String category) {
-    setState(() {
-      categories.add(category);
-    });
-  }
-
-  // FIXME: 카테고리 삭제
-  void removeCategory(String category) {
-    setState(() {
-      categories.remove(category);
-    });
   }
   
   // FIXME: 로그아웃
@@ -119,7 +67,7 @@ class _MenuState extends State<Menu> {
                 children: [
                   // FIXME: 인사 문구
                   Text(
-                    '안녕하세요, \n$nickname님.',
+                    '안녕하세요, \n${uc.nickname}님.',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
@@ -157,15 +105,7 @@ class _MenuState extends State<Menu> {
                               ),
                               // FIXME: 카테고리 수정 버튼
                               TextButton.icon(
-                                onPressed: () => showModalBottomSheet(context: context, builder: (context) => EditList(
-                                    categories: categories, 
-                                    selectedCategory: selectedCategory,
-                                    editMainSelectedCategory: editMainSelectedCategory,
-                                    editMenuSelectedCategory: editMenuSelectedCategory,
-                                    editMenuCategory: editMenuCategory,
-                                    removeCategory: removeCategory,
-                                  )
-                                ), 
+                                onPressed: () => showModalBottomSheet(context: context, builder: (context) => EditList()), 
                                 icon: const Icon(Icons.edit, size: 20, color: Colors.white), 
                                 label: const Text(
                                   '수정',
@@ -183,11 +123,9 @@ class _MenuState extends State<Menu> {
                       // FIXME: 저장된 카테고리 목록
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: categories.map((menu) => MenuCard(
+                        children: cc.categories.map((menu) => MenuCard(
                           name: menu,
                           isEdit: isEdit,
-                          selectedCategory: selectedCategory,
-                          editMainSelectedCategory: editMainSelectedCategory,
                         )).toList(),
                       ),
                       const SizedBox(height: 20.0),
@@ -285,7 +223,7 @@ class _MenuState extends State<Menu> {
                 bool result = check_category_null_duplicate(newCategoryName);
 
                 if (result) {
-                  addCategory(newCategoryName);
+
                   Navigator.of(context).pop();
                 }
               }

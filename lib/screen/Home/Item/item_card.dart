@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:food_manager/screen/Home/Edit/edit.dart';
-import 'dart:io';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/get/CategoryController.dart';
+import 'package:food_manager/get/ProductController.dart';
+import 'package:get/get.dart';
 
 class ItemCard extends StatelessWidget {
 
+  final UserController uc = Get.find();
+  final CategoryController cc = Get.find();
+  final ProductController pc = Get.find();
+
   Item item;
-  List<String> categories;
-  void Function(Item, bool) editItem;
-  void Function(Item) removeItem;
 
   List<String> statusList = ["일주일.png", "사흘.png", "하루.png", "지남.png"];
   int status = 0;
   
-  ItemCard (this.item, this.categories, this.editItem, this.removeItem, {Key? key}) : super(key: key) {
+  ItemCard (this.item, {Key? key}) : super(key: key) {
     DateTime now = DateTime.now();
     DateTime beforeAweek = now.add(const Duration(days: 7));
     DateTime beforeAthree = now.add(const Duration(days: 3));
@@ -44,7 +48,7 @@ class ItemCard extends StatelessWidget {
         motion: DrawerMotion(),
         children: [
           SlidableAction(
-            onPressed: (context) => Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(item: item, categories: categories, editItem: editItem))),
+            onPressed: (context) => Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(item: item))),
             label: '수정',
             backgroundColor: Colors.amber,
             foregroundColor: Colors.white
@@ -123,7 +127,7 @@ class ItemCard extends StatelessWidget {
               ),
               child: Text("삭제하기"),
               onPressed: () { 
-                removeItem(item);
+                pc.removeItem(uc.email.value, item);
                 Navigator.of(context).pop();
               }
             )

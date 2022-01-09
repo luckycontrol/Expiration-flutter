@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 class CategoryController extends GetxController {
-  List<String> categories = [];
-  String selectedCategory = "";
+  List<String> categories = <String>[].obs;
+  var selectedCategory = "".obs;
 
   // 카테고리 initialize
   initialize(email) async {
@@ -17,13 +17,12 @@ class CategoryController extends GetxController {
     });
 
     categories = _categories;
-    update();
+    selectedCategory.value = _categories[0];
   }
 
   // 카테고리 선택
   selectCategory(String newCategory) {
-    selectedCategory = newCategory;
-    update();
+    selectedCategory.value = newCategory;
   }
 
   // 카테고리 추가

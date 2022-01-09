@@ -2,18 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {
-  String email = "";
-  String nickname = "";
+  var email = "".obs;
+  var nickname = "".obs;
   
   // 이메일 초기화
   setEmail(_email) {
-    email = _email;
-    update();
+    email.value = _email;
   }
 
   // 닉네임 초기화
   setNickname() async {
-    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("user");
+    DocumentReference ref = FirebaseFirestore.instance.collection(email.value).doc("user");
 
     String _nickname = await ref
     .get()
@@ -22,7 +21,6 @@ class UserController extends GetxController {
       return _nickname["nickname"];
     });
 
-    nickname = _nickname;
-    update();
+    nickname.value = _nickname;
   }
 }

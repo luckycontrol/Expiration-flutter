@@ -1,58 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:food_manager/get/CategoryController.dart';
+import 'package:get/get.dart';
 
 class EditList extends StatefulWidget {
 
-  String selectedCategory;
-  List<String> categories;
-  void Function(String) editMainSelectedCategory;
-  void Function(String) editMenuSelectedCategory;
-  void Function(int, String) editMenuCategory;
-  void Function(String) removeCategory;
-
-  EditList({ 
-    required this.selectedCategory,
-    required this.editMainSelectedCategory,
-    required this.categories,
-    required this.editMenuSelectedCategory,
-    required this.editMenuCategory,
-    required this.removeCategory
-  });
+  EditList();
 
   @override
-  _EditListState createState() => _EditListState(
-    selectedCategory: selectedCategory,
-    categories: categories,
-    editMainSelectedCategory: editMainSelectedCategory,
-    editMenuSelectedCategory: editMenuSelectedCategory,
-    editMenuCategory: editMenuCategory,
-    removeCategory: removeCategory
-  );
+  _EditListState createState() => _EditListState();
 }
 
 class _EditListState extends State<EditList> {
 
-  String selectedCategory;
-  List<String> categories;
-  void Function(String) editMainSelectedCategory;
-  void Function(String) editMenuSelectedCategory;
-  void Function(int, String) editMenuCategory;
-  void Function(String) removeCategory;
+  final CategoryController cc = Get.find();
 
-  _EditListState({ 
-    required this.selectedCategory,
-    required this.categories,
-    required this.editMainSelectedCategory,
-    required this.editMenuSelectedCategory,
-    required this.editMenuCategory,
-    required this.removeCategory
-  });
-
-  void editListCategory(int idx, String category) {
-    setState(() {
-      categories[idx] = category;
-    });
-  }
+  _EditListState();
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +42,7 @@ class _EditListState extends State<EditList> {
             ),
             // FIXME: 카테고리 목록
             Column(
-              children: categories.map((category) {
+              children: cc.categories.map((category) {
                 return Slidable(
                   endActionPane: ActionPane(
                     motion: const DrawerMotion(),
@@ -95,8 +58,7 @@ class _EditListState extends State<EditList> {
                       SlidableAction(
                         label: "삭제",
                         onPressed: (context) {
-                          removeCategory(category);
-                          setState(() { categories.remove(category); });
+                          
                         },
                         backgroundColor: Colors.red[400]!,
                         foregroundColor: Colors.white,
@@ -163,13 +125,6 @@ class _EditListState extends State<EditList> {
               ),
               child: Text("수정하기"),
               onPressed: () {
-                int idx = categories.indexOf(category);
-                editMenuCategory(idx, newCategoryName);
-                editListCategory(idx, newCategoryName);
-                if (category == selectedCategory) {
-                  editMenuSelectedCategory(newCategoryName);
-                  editMainSelectedCategory(newCategoryName);
-                }
 
                 Navigator.of(context).pop();
               },

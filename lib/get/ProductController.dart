@@ -99,16 +99,64 @@ class ProductController extends GetxController {
   removeItem(String email, Item removeItem) {
     item_list = item_list.where((item) => item.id != removeItem.id).toList();
     update();
-
-    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
     
     // cloud firestore에 저장
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
     ref.set({"product": _item_list});
 
     // 이미지 삭제
     try {
-      firebase_storage.FirebaseStorage.instance.ref("product/$email/${removeItem.id}").delete();
+      firebase_storage.FirebaseStorage.instance.ref("product/$email/${removeItem.id}.png").delete();
+    } on FirebaseException catch(e) {
+      print(e);
+    }
+  }
+
+  // 카테고리 수정 ( 여러 아이템 한 번에 수정 )
+  editItems(String email, String category, String newCategory) {
+    // 아이템 리스트를 순회하면서 카테고리 이름을 바꿔준다.
+    item_list = item_list.map((item) {
+      if (item.category == category) {
+        Item newItem = Item(
+          id: item.id,
+          name: item.name,
+          category: newCategory,
+          expiration: item.expiration,
+          image: item.image
+        );
+
+        return newItem;
+      } else {
+        return item;
+      }
+    }).toList();
+
+    // 수정된 리스트를 cloud firestore에 저장해준다.
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    List<Map<String, dynamic>> _item_list = item_list.map((item) => item.toJson()).toList();
+    ref.set({"product": _item_list});
+  }
+
+  // 카테고리 삭제 ( 여러 아이템 한 번에 삭제 )
+  removeItems(String email, String category) {
+    // 제거할 아이템들만 수집
+    List<Item> deleteItems = item_list.where((item) => item.category == category).toList();
+
+    // 아이템 목록에서 해당 카테고리 아이템들 제거
+    item_list = item_list.where((item) => item.category != category).toList();
+    update();
+
+    // cloud firestore에 변경된 아이템목록 반영
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    List<Map<String, dynamic>> _item_list = item_list.map((_item) => _item.toJson()).toList();
+    ref.set({"product": _item_list});
+
+    // cloud storege에 이미지들 제거
+    try {
+      for (Item i in deleteItems) {
+        firebase_storage.FirebaseStorage.instance.ref("product/$email/${i.id}.png").delete();
+      }
     } on FirebaseException catch(e) {
       print(e);
     }

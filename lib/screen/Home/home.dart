@@ -49,6 +49,7 @@ class _HomeState extends State<Home> {
         title: Obx(() => Text(cc.selectedCategory.value)),
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
+        elevation: 0.5,
         actions: [
           // 추가 아이콘
           IconButton(
@@ -57,14 +58,16 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: GetBuilder<ProductController>(
-          builder: (_) => Column(
-            children: [
-              ExpireList(expire_soon_list: _.item_list.where((item) => DateTime.now().day + 2 >= item.expiration.day).toList()),
-              ItemList(item_list: _.item_list.where((item) => item.category == cc.selectedCategory.value).toList())
-            ],
+      body: GetBuilder<CategoryController>(
+        builder: (category) => SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: GetBuilder<ProductController>(
+            builder: (product) => Column(
+              children: [
+                ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 2 >= item.expiration.day).toList()),
+                ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList())
+              ],
+            )
           )
         )
       )

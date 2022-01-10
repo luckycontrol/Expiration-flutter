@@ -121,12 +121,14 @@ class _MenuState extends State<Menu> {
                         ],
                       ),
                       // FIXME: 저장된 카테고리 목록
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: cc.categories.map((menu) => MenuCard(
-                          name: menu,
-                          isEdit: isEdit,
-                        )).toList(),
+                      GetBuilder<CategoryController>(
+                        builder: (_) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: cc.categories.map((category) => MenuCard(
+                            isEdit: isEdit, 
+                            name: category
+                          )).toList()
+                        )
                       ),
                       const SizedBox(height: 20.0),
                       // FIXME: 설정
@@ -223,7 +225,7 @@ class _MenuState extends State<Menu> {
                 bool result = check_category_null_duplicate(newCategoryName);
 
                 if (result) {
-
+                  cc.addCategory(uc.email.value, newCategoryName);
                   Navigator.of(context).pop();
                 }
               }

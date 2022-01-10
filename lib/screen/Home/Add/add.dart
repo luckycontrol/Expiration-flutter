@@ -96,7 +96,7 @@ class _AddState extends State<Add> {
                       decoration: BoxDecoration(
                         image: _image != null ? DecorationImage(
                           image: FileImage(File(_image!.path)),
-                          fit: BoxFit.fitWidth
+                          fit: BoxFit.cover
                         ) : null,
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
@@ -186,7 +186,7 @@ class _AddState extends State<Add> {
                           image: _image!.path
                         );
 
-                        pc.addItem(uc.email as String, newItem);
+                        pc.addItem(uc.email.value, newItem);
                         Navigator.of(context).pop();
                       }
                     }

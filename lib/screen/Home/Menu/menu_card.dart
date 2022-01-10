@@ -18,7 +18,7 @@ class MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () { 
-
+        cc.selectCategory(name);
         Navigator.of(context).pop();
       },
       child: Container(

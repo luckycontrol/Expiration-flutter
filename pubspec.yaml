@@ -43,6 +43,7 @@ dependencies:
   firebase_storage: ^10.2.4
   firebase_messaging: ^11.2.4
   get:
+  http:
 
 dev_dependencies:
   flutter_test:

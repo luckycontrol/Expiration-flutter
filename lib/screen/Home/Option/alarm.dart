@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:food_manager/get/UserController.dart';
+import 'package:food_manager/api/push_manager.dart';
+import 'package:get/get.dart';
 
 class Alarm extends StatefulWidget {
   Alarm({Key? key}) : super(key: key);
@@ -10,7 +14,14 @@ class Alarm extends StatefulWidget {
 
 class _AlarmState extends State<Alarm> {
 
+  final UserController uc = Get.find();
+
   DateTime time = DateTime.now();
+
+  void setDailyAlarm(String email, DateTime _time) {
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("alarm");
+    ref.set({"alarm": _time });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +43,7 @@ class _AlarmState extends State<Alarm> {
               )
             ),
             const Text(
-              "알람은 유통기한이 임박한 품목이 \n있을 때만 보내드려요.",
+              "알람은 유통기한이 임박한 품목(유통기한이 끝나기 3일전)이 \n있을 때만 보내드려요.",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey
@@ -41,21 +52,26 @@ class _AlarmState extends State<Alarm> {
             Row(
               children: [
                 const Spacer(),
-                GestureDetector(
-                  onTap: () => showModalBottomSheet(context: context, builder: (context) => DatePicker(context)),
+                ElevatedButton(
+                  onPressed: () => showModalBottomSheet(context: context, builder: (context) => DatePicker(context)),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green[800]
+                  ),
                   child: Text(
                     "${time.hour}시 ${time.minute}분",
                     style: const TextStyle(fontSize: 16)
-                  )
-                )
+                  ),
+                ),
               ],
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () { 
+                setDailyAlarm(uc.email.value, time);
+              },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                primary: Colors.green[800]
+                primary: Colors.green[800],
               ),
               child: const Text("알람 설정", style: TextStyle(fontWeight: FontWeight.bold)) 
             ),
@@ -69,7 +85,7 @@ class _AlarmState extends State<Alarm> {
   Widget DatePicker(BuildContext context) {
     return CupertinoDatePicker(
       mode: CupertinoDatePickerMode.time,
-      initialDateTime: DateTime(1969, 1, 1, ),
+      initialDateTime: DateTime(1969, 3, 3, ),
       onDateTimeChanged: (DateTime newDate) {
         setState(() { time = newDate; });
       }

@@ -20,23 +20,19 @@ class ItemCard extends StatelessWidget {
   
   ItemCard (this.item, {Key? key}) : super(key: key) {
     DateTime now = DateTime.now();
-    DateTime beforeAweek = now.add(const Duration(days: 7));
-    DateTime beforeAthree = now.add(const Duration(days: 3));
-    DateTime beforeAday = now.add(const Duration(days: 1));
+    DateTime oneDayLeft = now.add(const Duration(days: 1));
+    DateTime oneWeekLeft = now.add(const Duration(days: 7));
 
-    if (item.expiration.isAfter(beforeAweek)) {
+    if (item.expiration.isAfter(oneWeekLeft)) {
       status = 0;
     }
-    else if (item.expiration.isAfter(beforeAthree)) {
+    if (item.expiration.isAfter(oneDayLeft) && item.expiration.isBefore(oneWeekLeft)) {
       status = 1;
     }
-    else if (item.expiration.isAfter(beforeAday)) {
+    if (item.expiration.isAfter(now) && item.expiration.isBefore(oneDayLeft)) {
       status = 2;
     }
-    else if (item.expiration.day == now.day){
-      status = 2;
-    }
-    else if (item.expiration.isBefore(now)) {
+    if (item.expiration.isBefore(now)) {
       status = 3;
     }
   }
@@ -45,7 +41,7 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Slidable(
       endActionPane: ActionPane(
-        motion: DrawerMotion(),
+        motion: const DrawerMotion(),
         children: [
           SlidableAction(
             onPressed: (context) => Navigator.push(context, MaterialPageRoute(builder: (context) => Edit(item: item))),
@@ -92,7 +88,7 @@ class ItemCard extends StatelessWidget {
                         fontWeight: FontWeight.w600
                       )),
                       const SizedBox(width: 8),
-                      Image.asset("assets/expiration/${statusList[status]}", width: 12, height: 12)
+                      // Image.asset("assets/expiration/${statusList[status]}", width: 12, height: 12)
                     ],
                   ),
                   const SizedBox(height: 8),

@@ -1,7 +1,7 @@
 class User {
   String email;
   String token;
-  DateTime time;
+  String time;
 
   User({ 
     required this.email,

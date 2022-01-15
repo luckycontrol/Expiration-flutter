@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_manager/screen/Home/home.dart';
 import 'package:food_manager/screen/Account/login.dart';
-import 'package:food_manager/api/push_manager.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -22,8 +21,6 @@ void main() async {
     badge: true,
     sound: true
   );
-  String? token = await messaging.getToken();
-  print(token);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print("메시지 왔다!");
@@ -32,6 +29,9 @@ void main() async {
       print(message.notification);
     }
   });
+
+  String? token = await FirebaseMessaging.instance.getToken();
+  print(token);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessagingHandler);
   runApp(MyApp()); 

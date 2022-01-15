@@ -68,6 +68,7 @@ class _AlarmState extends State<Alarm> {
             ElevatedButton(
               onPressed: () { 
                 setDailyAlarm(uc.email.value, time);
+                pushManager.setAlarm(uc.email.value, time);
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),

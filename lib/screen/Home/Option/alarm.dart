@@ -30,6 +30,7 @@ class _AlarmState extends State<Alarm> {
         title: const Text("알람시간 설정"),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        elevation: 0.3
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -43,7 +44,7 @@ class _AlarmState extends State<Alarm> {
               )
             ),
             const Text(
-              "알람은 유통기한이 임박한 품목(유통기한이 끝나기 3일전)이 \n있을 때만 보내드려요.",
+              "알람은 유통기한이 임박한 품목(유통기한이 끝나기 3일전)이 있을 때만 보내드려요.",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey
@@ -66,9 +67,14 @@ class _AlarmState extends State<Alarm> {
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () { 
+              onPressed: () async { 
                 setDailyAlarm(uc.email.value, time);
                 pushManager.setAlarm(uc.email.value, time);
+                showDialog(context: context, builder: (context) => complete_dialog(context));
+                
+                await Future.delayed(const Duration(seconds: 2));
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
@@ -90,6 +96,24 @@ class _AlarmState extends State<Alarm> {
       onDateTimeChanged: (DateTime newDate) {
         setState(() { time = newDate; });
       }
+    );
+  }
+
+  Widget complete_dialog(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Dialog(
+      child: SizedBox(
+        height: size.height * 1/5,
+        child: const Center(
+          child: Text(
+            "알람이 설정되었습니다!",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold
+            )
+          )
+        )
+      )
     );
   }
 }

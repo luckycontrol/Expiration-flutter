@@ -30,9 +30,6 @@ void main() async {
     }
   });
 
-  String? token = await FirebaseMessaging.instance.getToken();
-  print(token);
-
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessagingHandler);
   runApp(MyApp()); 
 }

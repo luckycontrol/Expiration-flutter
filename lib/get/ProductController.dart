@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class ProductController extends GetxController {
   List<Item> item_list = <Item>[].obs;
+  RxBool loading = RxBool(false);
 
   // initialize
   initialize(String email) async {
@@ -25,24 +26,30 @@ class ProductController extends GetxController {
   }
 
   // 아이템 추가
-  addItem(String email, Item item) async {
-    try {
-      await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").putFile(File(item.image));
-    } on FirebaseException catch(e) {
-      print(e);
+  addItem(String email, List<Item> itemList) async {
+    loading.value = true;
+    update();
+
+    for (Item item in itemList) {
+      try {
+        await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").putFile(File(item.image));
+        String imgURL = await  firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").getDownloadURL();
+
+        Item _item = Item(
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          expiration: item.expiration,
+          image: imgURL
+        );
+
+        item_list.add(_item);
+      } on FirebaseException catch(e) {
+        print(e);
+      }
     }
 
-    String imgURL = await  firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").getDownloadURL();
-
-    Item _item = Item(
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      expiration: item.expiration,
-      image: imgURL
-    );
-
-    item_list.add(_item);
+    loading.value = false;
     update();
 
     List<Map<String, dynamic>> _item_list = item_list.map((_item) {
@@ -63,6 +70,8 @@ class ProductController extends GetxController {
 
   // 아이템 수정
   editItem(String email, Item editItem, bool isChanged) async {
+    loading.value = true;
+    update();
     if (isChanged) {
       // cloud storage에 이미지 저장
       try {
@@ -85,6 +94,8 @@ class ProductController extends GetxController {
 
     // 기존 리스트에서 수정된 아이템 삭제
     item_list = item_list.where((item) => item.id != editItem.id).toList();
+    item_list.add(_item);
+    loading.value = false;
     update();
 
     // 아이템 리스트를 json으로 변경

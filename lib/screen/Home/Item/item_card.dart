@@ -15,25 +15,31 @@ class ItemCard extends StatelessWidget {
 
   Item item;
 
-  List<String> statusList = ["일주일.png", "사흘.png", "하루.png", "지남.png"];
-  int status = 0;
+  String status = "finish.png";
   
   ItemCard (this.item, {Key? key}) : super(key: key) {
     DateTime now = DateTime.now();
-    DateTime oneDayLeft = now.add(const Duration(days: 1));
-    DateTime oneWeekLeft = now.add(const Duration(days: 7));
-
-    if (item.expiration.isAfter(oneWeekLeft)) {
-      status = 0;
+    DateTime _now = DateTime(now.year, now.month, now.day);
+    DateTime threeDayLeft = _now.add(const Duration(days: 3));
+    DateTime oneWeekLeft = _now.add(const Duration(days: 7));
+    
+    if (item.expiration.isAfter(oneWeekLeft) || item.expiration == oneWeekLeft) {
+      status = "oneWeek.png";
     }
-    if (item.expiration.isAfter(oneDayLeft) && item.expiration.isBefore(oneWeekLeft)) {
-      status = 1;
+    else if (item.expiration.isAfter(threeDayLeft) && item.expiration.isBefore(oneWeekLeft)) {
+      status = "threeDaysLeft.png";
     }
-    if (item.expiration.isAfter(now) && item.expiration.isBefore(oneDayLeft)) {
-      status = 2;
+    else if (item.expiration == threeDayLeft) {
+      status = "oneDayLeft.png";
     }
-    if (item.expiration.isBefore(now)) {
-      status = 3;
+    else if (item.expiration.isAfter(_now) && item.expiration.isBefore(threeDayLeft)) {
+      status = "oneDayLeft.png";
+    }
+    else if (item.expiration == _now) {
+      status = "oneDayLeft.png";
+    }
+    else if (item.expiration.isBefore(_now)) {
+      status = "finish.png";
     }
   }
 
@@ -66,7 +72,7 @@ class ItemCard extends StatelessWidget {
             bottom: BorderSide(
               color: Colors.grey[300]!
             )
-          )
+          ),
         ),
         child: Row(
           children: [
@@ -88,7 +94,7 @@ class ItemCard extends StatelessWidget {
                         fontWeight: FontWeight.w600
                       )),
                       const SizedBox(width: 8),
-                      // Image.asset("assets/expiration/${statusList[status]}", width: 12, height: 12)
+                      Image.asset("assets/$status", width: 12, height: 12)
                     ],
                   ),
                   const SizedBox(height: 8),

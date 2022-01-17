@@ -3,6 +3,7 @@ import 'package:food_manager/screen/Utils/alert_dialog.dart';
 import 'package:food_manager/screen/Home/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({ Key? key }) : super(key: key);
@@ -52,6 +53,25 @@ class _CreateAccountState extends State<CreateAccount> {
               .set({"categories": ["정육", "채소", "생선"]})
               .then((value) { Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home())); })
               .catchError((error) { print(error); });
+
+        // FIXME: 토큰 저장
+        String? token = await FirebaseMessaging.instance.getToken();
+        DocumentReference docRef = FirebaseFirestore.instance.collection(email).doc("token");
+        docRef.set({"token": token });
+
+        // FIXME: UserCollection > UserDocument에 이메일 추가
+        DocumentReference userCollectionRef = FirebaseFirestore.instance.collection("UserCollection").doc("UserDocument");
+        List<String> users = await userCollectionRef
+        .get()
+        .then((snapshot) {
+          if (!snapshot.exists) return [];
+
+          Map<String, dynamic> _users = snapshot.data() as Map<String, dynamic>;
+          return _users["users"];
+        });
+
+        users.add(email);
+        userCollectionRef.set({"users": users});
 
       } on FirebaseAuthException catch(e) {
         String errMessage = messages[e.code]!;

@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'dart:io';
 
 class Edit extends StatefulWidget {
-  Edit({Key? key, required this.item }) : super(key: key);
+  const Edit({Key? key, required this.item }) : super(key: key);
 
   final Item item;
 
@@ -228,7 +228,7 @@ class _EditState extends State<Edit> {
                         item.image = _image;
 
                         setState(() {
-                          pc.editItem(uc.email as String, item, isChanged);
+                          pc.editItem(uc.email.value, item, isChanged);
                         });
 
                         Navigator.of(context).pop();

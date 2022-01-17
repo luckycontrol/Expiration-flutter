@@ -3,6 +3,8 @@ import 'package:food_manager/screen/Account/create.dart';
 import 'package:food_manager/screen/Home/home.dart';
 import 'package:food_manager/screen/Utils/alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Login extends StatefulWidget {
   const Login({ Key? key }) : super(key: key);
@@ -22,6 +24,7 @@ class _LoginState extends State<Login> {
     "user-not-found": "사용자를 찾을 수 없습니다."
   };
 
+  // 로그인처리 함수
   void handleLogin(String email, String password) async {
     if (email == "") {
       showDialog(context: context, builder: (context) => AlertMessageDialog(message: "이메일을 입력해주세요."));
@@ -38,6 +41,13 @@ class _LoginState extends State<Login> {
         email: email, 
         password: password
       );
+
+      // 토큰 저장
+      String? token = await FirebaseMessaging.instance.getToken();
+      DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("token");
+      ref.set({"token": token});
+
+      // 화면 이동
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
     } on FirebaseAuthException catch (e) {
       String errMessage = messages[e.code]!;

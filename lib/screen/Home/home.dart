@@ -6,11 +6,12 @@ import 'package:food_manager/screen/Home/Add/add.dart';
 import 'package:food_manager/get/ProductController.dart';
 import 'package:food_manager/get/UserController.dart';
 import 'package:food_manager/get/CategoryController.dart';
+import 'package:food_manager/screen/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class Home extends StatefulWidget {
-  Home({ Key? key }) : super(key: key);
+  const Home({ Key? key }) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -58,19 +59,25 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: GetBuilder<CategoryController>(
-        builder: (category) => SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: GetBuilder<ProductController>(
-            builder: (product) => Column(
-              children: [
-                ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 2 >= item.expiration.day).toList()),
-                ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList())
-              ],
-            )
-          )
-        )
-      )
+      body: GetBuilder<ProductController>(
+        builder: (product) {
+          if (product.loading.value) {
+            return const Loading();
+          } else {
+            return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: GetBuilder<CategoryController>(
+                builder: (category) => Column(
+                  children: [
+                    ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 3 >= item.expiration.day).toList()),
+                    ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList())
+                  ],
+                )
+              )
+            );
+          }
+        }
+      ) 
     );
   }
 }

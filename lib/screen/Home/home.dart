@@ -9,7 +9,6 @@ import 'package:food_manager/get/CategoryController.dart';
 import 'package:food_manager/screen/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
 class Home extends StatefulWidget {
   const Home({ Key? key }) : super(key: key);
 
@@ -55,29 +54,25 @@ class _HomeState extends State<Home> {
           // 추가 아이콘
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Add()))
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Add()))
           )
         ],
       ),
-      body: GetBuilder<ProductController>(
-        builder: (product) {
-          if (product.loading.value) {
-            return const Loading();
-          } else {
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: GetBuilder<CategoryController>(
-                builder: (category) => Column(
-                  children: [
-                    ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 3 >= item.expiration.day).toList()),
-                    ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList())
-                  ],
-                )
-              )
-            );
-          }
-        }
-      ) 
+      body: SingleChildScrollView(
+        child: GetBuilder<ProductController>(
+          builder: (product) => product.loading.value
+            ? const Loading()
+            : GetBuilder<CategoryController>(
+            builder: (category) => Column(
+              children: [
+                ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 3 >= item.expiration.day).toList()),
+                ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList()),
+                const SizedBox(height: 30),
+              ],
+            )
+          ) 
+        )
+      )
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RemoveAccount extends StatelessWidget {
   const RemoveAccount({Key? key}) : super(key: key);
@@ -37,7 +38,13 @@ class RemoveAccount extends StatelessWidget {
                 minimumSize: Size(size.width, 50),
                 primary: Colors.green[800]
               ),
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  await FirebaseAuth.instance.currentUser!.delete();
+                } on FirebaseException catch (e) {
+                  print(e);
+                }
+              },
               child: const Text("계정삭제", style: TextStyle(fontWeight: FontWeight.bold))
             ),
             const SizedBox(height: 15)

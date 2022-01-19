@@ -11,11 +11,17 @@ class ItemList extends StatelessWidget {
   List<Item> item_list;
 
   @override
-  Widget build(BuildContex) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
-      child: Column(
-        children: item_list.map((item) => ItemCard(item)).toList(),
+  Widget build(BuildContext context) {
+    return item_list.length > 0
+    ? Column(
+      children: item_list.map((item) => ItemCard(item)).toList(),
+    )
+    : const Padding(
+      padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
+      child: Text(
+        "우측 상단에 +버튼을 눌러 품목을 추가해보세요!", 
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 17),
       )
     );
   }

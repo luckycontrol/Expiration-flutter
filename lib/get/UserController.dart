@@ -6,19 +6,17 @@ class UserController extends GetxController {
   var nickname = "".obs;
   
   // 이메일 초기화
-  setEmail(_email) {
+  setEmail(String _email) {
     email.value = _email;
   }
 
   // 닉네임 초기화
-  setNickname() async {
-    DocumentReference ref = FirebaseFirestore.instance.collection(email.value).doc("user");
+  setNickname(String _email) async {
+    DocumentReference ref = FirebaseFirestore.instance.collection(_email).doc("user");
 
-    String _nickname = await ref
-    .get()
-    .then((snapshot) {
+    String _nickname = await ref.get().then((snapshot) {
       Map<String, dynamic> _nickname = snapshot.data() as Map<String, dynamic>;
-      return _nickname["nickname"];
+      return _nickname["nickname"] as String;
     });
 
     nickname.value = _nickname;

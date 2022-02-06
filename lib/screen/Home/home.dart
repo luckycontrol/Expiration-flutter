@@ -31,7 +31,7 @@ class _HomeState extends State<Home> {
       String _email = FirebaseAuth.instance.currentUser!.email!;
 
       await uc.setEmail(_email);
-      await uc.setNickname();
+      await uc.setNickname(_email);
       await cc.initialize(_email);
       await pc.initialize(_email);
     }
@@ -58,20 +58,19 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: GetBuilder<ProductController>(
-          builder: (product) => product.loading.value
-            ? const Loading()
-            : GetBuilder<CategoryController>(
-            builder: (category) => Column(
+      body: GetBuilder<ProductController>(
+        builder: (product) => GetBuilder<CategoryController>(
+          builder: (category) => product.loading.value
+          ? const Loading()
+          : SingleChildScrollView(
+            child: Column(
               children: [
                 ExpireList(expire_soon_list: product.item_list.where((item) => DateTime.now().day + 3 >= item.expiration.day).toList()),
                 ItemList(item_list: product.item_list.where((item) => item.category == category.selectedCategory.value).toList()),
-                const SizedBox(height: 30),
               ],
-            )
-          ) 
-        )
+            ),
+          )
+        ) 
       )
     );
   }

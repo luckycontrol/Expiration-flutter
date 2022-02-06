@@ -4,6 +4,7 @@ import 'package:food_manager/screen/Account/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart';
 
 
 Future<void> _firebaseBackgroundMessagingHandler(RemoteMessage message) async {
@@ -42,12 +43,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: "Elice"
       ),
-      home: auth.currentUser == null ? Login() : Home()
+      initialRoute: auth.currentUser == null ? "/login" : "/home",
+      routes: {
+        "/home": (context) => const Home(),
+        "/login": (context) => const Login()
+      }
     );
   }
 }

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:food_manager/screen/Utils/alert_dialog.dart';
-import 'package:food_manager/screen/Home/home.dart';
+import 'package:food_manager/screen/loading.dart';
+import 'package:food_manager/api/push_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get/get.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({ Key? key }) : super(key: key);
 
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _CreateAccountState createState()   => _CreateAccountState();
 }
 
 class _CreateAccountState extends State<CreateAccount> {
@@ -17,6 +19,7 @@ class _CreateAccountState extends State<CreateAccount> {
   String email = "";
   String nickname = "";
   String password = "";
+  bool loading = false;
 
   Map<String, String> messages = {
     "invalid-email": "이메일 형식으로 입력해주세요.",
@@ -41,6 +44,7 @@ class _CreateAccountState extends State<CreateAccount> {
     }
 
     try {
+      setState(() { loading = true; });
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       // 카테고리 저장
       CollectionReference ref = FirebaseFirestore.instance.collection(email);
@@ -52,11 +56,13 @@ class _CreateAccountState extends State<CreateAccount> {
       // 알람 저장
       await ref.doc("alarm").set({"alarm": DateTime(1961, 3, 3, 7)});
 
-      // FIXME: 토큰 저장
+      // 토큰 저장
       String? token = await FirebaseMessaging.instance.getToken();
-      ref.doc("token").set({"token": token });
+      await ref.doc("token").set({"token": token });
+      // 알람설정
+      await PushManager().setAlarm(email, DateTime(1969, 3, 3, 7));
 
-      // // FIXME: UserCollection > UserDocument에 이메일 추가
+      // UserCollection > UserDocument에 이메일 추가
       DocumentReference userCollectionRef = FirebaseFirestore.instance.collection("UserCollection").doc("UserDocument");
       List<String> users = await userCollectionRef
       .get()
@@ -69,7 +75,8 @@ class _CreateAccountState extends State<CreateAccount> {
 
       users.add(email);
       userCollectionRef.set({"users": users});
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Home()));
+      Get.offAllNamed("/home");
+
     } on FirebaseAuthException catch(e) {
       String errMessage = messages[e.code]!;
       showDialog(context: context, builder: (context) => AlertMessageDialog(message: errMessage));
@@ -86,7 +93,9 @@ class _CreateAccountState extends State<CreateAccount> {
         elevation: 0.5
       ),
       body: SafeArea(
-        child: Padding(
+        child: loading
+          ? const Loading()
+          : Padding(
           padding: const EdgeInsets.fromLTRB(20, 80, 20, 0),
           child: SingleChildScrollView(
             child: Column(

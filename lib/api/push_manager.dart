@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 class PushManager {
 
-  void setAlarm(String email, DateTime time) async {
+  Future<void> setAlarm(String email, DateTime time) async {
 
     String? token = await FirebaseMessaging.instance.getToken();
 
@@ -25,7 +25,20 @@ class PushManager {
       body: jsonEncode(_user)
     );
   }
+
+  Future<void> removeAlarm(String email) async {
+    Map<String, String> _email = {
+      "email": email
+    };
+
+    http.post(
+      Uri.parse("https://food-manager-server.herokuapp.com/remove"),
+      headers: <String, String>{
+        HttpHeaders.contentTypeHeader: "application/json",
+      },
+      body: jsonEncode(_email)
+    );
+  }
 }
 
 PushManager pushManager = PushManager();
-

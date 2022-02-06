@@ -92,7 +92,7 @@ class _AlarmState extends State<Alarm> {
   Widget DatePicker(BuildContext context) {
     return CupertinoDatePicker(
       mode: CupertinoDatePickerMode.time,
-      initialDateTime: DateTime(1969, 3, 3, ),
+      initialDateTime: DateTime(1969, 3, 3, time.hour, time.minute),
       onDateTimeChanged: (DateTime newDate) {
         setState(() { time = newDate; });
       }

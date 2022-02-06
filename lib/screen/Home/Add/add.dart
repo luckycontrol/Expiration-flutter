@@ -42,7 +42,6 @@ class _AddState extends State<Add> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       // AddCard 추가버튼
       body: SafeArea(
@@ -86,28 +85,24 @@ class _AddState extends State<Add> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.transparent
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(size.width, 40),
-                      primary: Colors.green[800]
-                    ),
-                    onPressed: () {
-                      pc.addItem(uc.email.value, itemList);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      "추가하기",
-                      style: TextStyle(fontWeight: FontWeight.bold)
-                    )
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    primary: Colors.green[800]
                   ),
+                  onPressed: () {
+                    if (itemList.isEmpty) return;
+                    pc.addItem(uc.email.value, itemList);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    "추가하기",
+                    style: TextStyle(fontWeight: FontWeight.bold)
+                  )
                 ),
-              )
+              ),
             )
           ],
         )

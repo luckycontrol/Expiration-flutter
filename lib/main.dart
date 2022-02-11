@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 
 Future<void> _firebaseBackgroundMessagingHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print(message.data);
 }
 
 void main() async { 

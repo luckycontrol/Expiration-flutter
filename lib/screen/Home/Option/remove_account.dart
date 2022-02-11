@@ -6,6 +6,8 @@ import 'package:food_manager/get/UserController.dart';
 import 'package:food_manager/get/ProductController.dart';
 import 'package:food_manager/get/CategoryController.dart';
 import 'package:get/get.dart';
+import 'package:food_manager/screen/loading.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class RemoveAccount extends StatelessWidget {
   RemoveAccount({Key? key}) : super(key: key);
@@ -13,6 +15,40 @@ class RemoveAccount extends StatelessWidget {
   UserController uc = Get.find();
   ProductController pc = Get.find();
   CategoryController cc = Get.find();
+
+  void removeAccount() async {
+    CollectionReference ref = FirebaseFirestore.instance.collection(uc.email.value);
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    await Future.wait([
+      // Firebase 알람 지우기
+      ref.doc("alarm").delete(),
+      // 서버에 저장된 알람 제거
+      pushManager.removeAlarm(uc.email.value),
+      // category 제거
+      ref.doc("category").delete(),
+      // product 제거
+      ref.doc("product").delete(),
+      // token 제거
+      ref.doc("token").delete(),
+    ]).then((value) async {
+      // cloud storage에 저장된 이미지들 제거 
+      await Future.wait(pc.item_list.map((item) async { await firebase_storage.FirebaseStorage.instance.ref("/product/${uc.email.value}/${item.id}.png").delete(); }));
+
+      // UserDocument 수정
+      DocumentReference userRef = FirebaseFirestore.instance.collection("UserCollection").doc("UserDocument");
+      List users = await userRef.get().then((snapshot) {
+        Map<String, dynamic> users = snapshot.data() as Map<String, dynamic>;
+        return (users["users"] as List).where((user) => user != uc.email.value).toList();
+      });
+      await userRef.set({"users": users});
+
+      await uc.setLogin(auth);
+      await uc.setDelete(auth);
+      await ref.doc("user").delete();
+      Get.offAllNamed("/login");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,28 +86,8 @@ class RemoveAccount extends StatelessWidget {
               ),
               onPressed: () async {
                 try {
-                  // 이메일에 저장된 품목들 삭제
-                  cc.categories.map((category) => {
-                   pc.removeItems(uc.email.value, category)
-                  });
-                  // UserCollection -> UserDocument에서 삭제
-                  DocumentReference ref = FirebaseFirestore.instance.collection("UserCollection").doc("UserDocument");
-                  List<String> users = await ref.get().then((snapshot) {
-                    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-                    List<String> users = (data["users"] as List).map((user) => user as String).toList();
-                    return users.where((user) => user != uc.email.value).toList();
-                  });
-
-                  await ref.set({"users": users});
-                  await FirebaseFirestore.instance.collection(uc.email.value).doc("alarm").delete();
-                  await FirebaseFirestore.instance.collection(uc.email.value).doc("category").delete();
-                  await FirebaseFirestore.instance.collection(uc.email.value).doc("product").delete();
-                  await FirebaseFirestore.instance.collection(uc.email.value).doc("token").delete();
-                  await FirebaseFirestore.instance.collection(uc.email.value).doc("user").delete();
-                  await PushManager().removeAlarm(uc.email.value);
-                  // FirebaseAuth에서 계정 삭제
-                  await FirebaseAuth.instance.currentUser!.delete();
-                  Get.offAllNamed('/login');
+                  showDialog(context: context, builder: (context) => removeAccountDialog(context));
+                  // Get.offAllNamed('/login');
                   
                 } on FirebaseException catch (e) {
                   print(e);
@@ -83,6 +99,33 @@ class RemoveAccount extends StatelessWidget {
           ],
         ) 
       )
+    );
+  }
+
+  Widget removeAccountDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text("계정을 삭제하실건가요?"),
+      actions: [
+        TextButton(
+          onPressed: () => removeAccount(),
+          child: const Text(
+            "삭제", 
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.red
+            )
+          )
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            "취소",
+            style: TextStyle(
+              fontSize: 16
+            )
+          )
+        )
+      ]
     );
   }
 }

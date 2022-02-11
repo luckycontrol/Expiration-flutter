@@ -45,38 +45,37 @@ class _CreateAccountState extends State<CreateAccount> {
 
     try {
       setState(() { loading = true; });
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-      // 카테고리 저장
       CollectionReference ref = FirebaseFirestore.instance.collection(email);
-      await ref
-            .doc("category")
-            .set({"categories": ["정육", "채소", "생선"]});
-      // 닉네임 저장
-      await ref.doc("user").set({"nickname": nickname});
-      // 알람 저장
-      await ref.doc("alarm").set({"alarm": DateTime(1961, 3, 3, 7)});
-
-      // 토큰 저장
-      String? token = await FirebaseMessaging.instance.getToken();
-      await ref.doc("token").set({"token": token });
-      // 알람설정
-      await PushManager().setAlarm(email, DateTime(1969, 3, 3, 7));
-
-      // UserCollection > UserDocument에 이메일 추가
       DocumentReference userCollectionRef = FirebaseFirestore.instance.collection("UserCollection").doc("UserDocument");
-      List<String> users = await userCollectionRef
-      .get()
-      .then((snapshot) {
-        if (!snapshot.exists) return [];
+      String? token = await FirebaseMessaging.instance.getToken();
 
-        Map<String, dynamic> _users = snapshot.data() as Map<String, dynamic>;
-        return (_users["users"] as List).map((user) => user as String).toList();
+      Future.wait([
+        FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password),
+        // 카테고리 저장
+        ref.doc("category").set({"categories": ["정육", "채소", "생선"]}),
+        // 닉네임, 이메일, 비밀번호 저장
+        ref.doc("user").set({"nickname": nickname, "email": email, "password": password}),
+        // 알람 저장
+        ref.doc("alarm").set({"alarm": DateTime(1961, 3, 3, 7)}),
+        // 토큰 저장
+        ref.doc("token").set({"token": token }),
+        // 알람설정
+        PushManager().setAlarm(email, DateTime(1969, 3, 3, 7))
+      ]).then((value) async {
+        List<String> users = await userCollectionRef
+        .get().then((snapshot) {
+          if (!snapshot.exists) return [];
+
+          Map<String, dynamic> _users = snapshot.data() as Map<String, dynamic>;
+          return (_users["users"] as List).map((user) => user as String).toList();
+        });
+
+        users.add(email);
+        await userCollectionRef.set({"users": users});
+        Get.offAllNamed("/home");
       });
 
-      users.add(email);
-      userCollectionRef.set({"users": users});
-      Get.offAllNamed("/home");
-
+      // UserCollection > UserDocument에 이메일 추가
     } on FirebaseAuthException catch(e) {
       String errMessage = messages[e.code]!;
       showDialog(context: context, builder: (context) => AlertMessageDialog(message: errMessage));

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_manager/get/UserController.dart';
 import 'package:food_manager/api/push_manager.dart';
@@ -17,10 +18,29 @@ class _AlarmState extends State<Alarm> {
   final UserController uc = Get.find();
 
   DateTime time = DateTime.now();
+  DateTime setTime = DateTime.now();
 
   void setDailyAlarm(String email, DateTime _time) {
     DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("alarm");
     ref.set({"alarm": _time });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    
+    void init() async {
+      String email = FirebaseAuth.instance.currentUser!.email!;
+
+      await FirebaseFirestore.instance.collection(email).doc("alarm").get().then((snapshot) {
+        Map<String, dynamic> alarm = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          setTime = (alarm["alarm"] as Timestamp).toDate();
+        });
+      });
+    }
+
+    init();
   }
 
   @override
@@ -48,6 +68,13 @@ class _AlarmState extends State<Alarm> {
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey
+              )
+            ),
+            const SizedBox(height: 15),
+            Text(
+              "현재 설정된 시간: ${setTime.hour}시 ${setTime.minute}분",
+              style: const TextStyle(
+                fontSize: 18,
               )
             ),
             Row(

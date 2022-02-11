@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:food_manager/model/item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:food_manager/get/CategoryController.dart';
 
 class ProductController extends GetxController {
   List<Item> item_list = <Item>[].obs;
@@ -171,5 +172,17 @@ class ProductController extends GetxController {
     } on FirebaseException catch(e) {
       print(e);
     }
+  }
+
+  // 모든 Product 삭제 ( 계정삭제용 )
+  Future removeAll(String email, CategoryController cc) async {
+    item_list.map((item) async {
+      await firebase_storage.FirebaseStorage.instance.ref("product/$email/${item.id}.png").delete();
+    });
+
+    cc.categories.map((category) async {
+      await FirebaseFirestore.instance.collection(email).doc(category).delete();
+    });
+    
   }
 }

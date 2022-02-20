@@ -18,7 +18,7 @@ class PushManager {
 
     Map<String, dynamic> _user = user.toJson();
     http.post(
-      Uri.parse("http://192.168.1.5:3000/message"),
+      Uri.parse("https://food-manager-server.herokuapp.com/message"),
       headers: <String, String>{
         HttpHeaders.contentTypeHeader: "application/json",
       },

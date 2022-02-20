@@ -11,8 +11,10 @@ class ProductController extends GetxController {
 
   // initialize
   initialize(String email) async {
-    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
+    loading.value = true;
+    update();
 
+    DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("product");
     List<Item> _item_list = await ref
     .get()
     .then((snapshot) {
@@ -23,6 +25,7 @@ class ProductController extends GetxController {
     });
 
     item_list = _item_list;
+    loading.value = false;
     update();
   }
 

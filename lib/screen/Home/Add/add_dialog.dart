@@ -129,7 +129,7 @@ class _AddDialogState extends State<AddDialog> {
                   TextButton(
                     child: Text("${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일 까지"),
                     onPressed: () { 
-                      Future<DateTime?> expiration = showDatePicker(context: context, initialDate: selectedDate, firstDate: DateTime(2020), lastDate: DateTime(2100));
+                      Future<DateTime?> expiration = showDatePicker(context: context, initialDate: selectedDate, firstDate: DateTime.now(), lastDate: DateTime(2100));
                       expiration.then((dateTime) {
                         setState(() {
                           if (dateTime != null) {
@@ -158,6 +158,8 @@ class _AddDialogState extends State<AddDialog> {
                       expiration: selectedDate,
                       image: _image!.path
                     );
+
+                    print(newItem.id);
 
                     addItem(newItem);
                     Navigator.of(context).pop();

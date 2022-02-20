@@ -36,7 +36,7 @@ class _AddState extends State<Add> {
   // 아이템 제거하는 함수
   void deleteItem(Item item) {
     setState(() {
-      itemList = itemList.where((item) => item.id != item.id).toList();
+      itemList = itemList.where((i) => i.id != item.id).toList();
     });
   }
 

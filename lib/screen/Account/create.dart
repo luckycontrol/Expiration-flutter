@@ -62,8 +62,7 @@ class _CreateAccountState extends State<CreateAccount> {
         // 알람설정
         PushManager().setAlarm(email, DateTime(1969, 3, 3, 7))
       ]).then((value) async {
-        List<String> users = await userCollectionRef
-        .get().then((snapshot) {
+        List<String> users = await userCollectionRef.get().then((snapshot) {
           if (!snapshot.exists) return [];
 
           Map<String, dynamic> _users = snapshot.data() as Map<String, dynamic>;

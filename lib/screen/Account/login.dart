@@ -3,8 +3,6 @@ import 'package:food_manager/screen/Account/create.dart';
 import 'package:food_manager/screen/Home/home.dart';
 import 'package:food_manager/screen/Utils/alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Login extends StatefulWidget {
   const Login({ Key? key }) : super(key: key);
@@ -41,11 +39,6 @@ class _LoginState extends State<Login> {
         email: email, 
         password: password
       );
-
-      // 토큰 저장
-      String? token = await FirebaseMessaging.instance.getToken();
-      DocumentReference ref = FirebaseFirestore.instance.collection(email).doc("token");
-      ref.set({"token": token});
 
       // 화면 이동
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Home()));

@@ -67,7 +67,7 @@ class _AlarmState extends State<Alarm> {
               "알람은 유통기한이 임박한 품목(유통기한이 끝나기 3일전)이 있을 때만 보내드려요.",
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey
+                color: Colors.blueGrey
               )
             ),
             const SizedBox(height: 15),
@@ -76,6 +76,10 @@ class _AlarmState extends State<Alarm> {
               style: const TextStyle(
                 fontSize: 18,
               )
+            ),
+            const Text(
+              "새벽시간(12시 ~ 5시59분)까지는 알람을 보내드릴 수 없어요. 해당 시간은 피해주세요.",
+              style: TextStyle(color: Colors.blueGrey)
             ),
             Row(
               children: [

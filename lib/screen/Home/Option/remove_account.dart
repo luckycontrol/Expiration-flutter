@@ -9,12 +9,21 @@ import 'package:get/get.dart';
 import 'package:food_manager/screen/loading.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
-class RemoveAccount extends StatelessWidget {
+class RemoveAccount extends StatefulWidget {
   RemoveAccount({Key? key}) : super(key: key);
 
+  @override
+  State<RemoveAccount> createState() => _RemoveAccountState();
+}
+
+class _RemoveAccountState extends State<RemoveAccount> {
   UserController uc = Get.find();
+
   ProductController pc = Get.find();
+
   CategoryController cc = Get.find();
+
+  bool isRemove = false;
 
   void removeAccount() async {
     CollectionReference ref = FirebaseFirestore.instance.collection(uc.email.value);
@@ -60,7 +69,9 @@ class RemoveAccount extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0.5
       ),
-      body: Container(
+      body: isRemove
+      ? const Loading()
+      : Container(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -87,8 +98,6 @@ class RemoveAccount extends StatelessWidget {
               onPressed: () async {
                 try {
                   showDialog(context: context, builder: (context) => removeAccountDialog(context));
-                  // Get.offAllNamed('/login');
-                  
                 } on FirebaseException catch (e) {
                   print(e);
                 }
@@ -107,7 +116,11 @@ class RemoveAccount extends StatelessWidget {
       title: const Text("계정을 삭제하실건가요?"),
       actions: [
         TextButton(
-          onPressed: () => removeAccount(),
+          onPressed: () {
+            Navigator.of(context).pop();
+            setState(() { isRemove = true; });
+            removeAccount();
+          },
           child: const Text(
             "삭제", 
             style: TextStyle(

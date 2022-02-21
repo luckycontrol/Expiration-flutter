@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:food_manager/api/push_manager.dart';
 import 'package:food_manager/screen/Home/Expire/expire_list.dart';
 import 'package:food_manager/screen/Home/Item/item_list.dart';
 import 'package:food_manager/screen/Home/Menu/menu.dart';
 import 'package:food_manager/screen/Home/Add/add.dart';
+import 'package:food_manager/screen/Home/Help/help.dart';
 import 'package:food_manager/get/ProductController.dart';
 import 'package:food_manager/get/UserController.dart';
 import 'package:food_manager/get/CategoryController.dart';
@@ -41,6 +43,13 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       DocumentReference ref = FirebaseFirestore.instance.collection(_email).doc("token");
       await ref.set({"token": token});
 
+      // 알람 설정
+      DateTime time = await FirebaseFirestore.instance.collection(_email).doc("alarm").get().then((snapshot) {
+        Map<String, dynamic> alarm = snapshot.data() as Map<String, dynamic>;
+        return (alarm["alarm"] as Timestamp).toDate();
+      });
+      await pushManager.setAlarm(_email, time);
+
       await uc.setEmail(_email);
       await uc.setNickname(_email);
       await cc.initialize(_email);
@@ -69,10 +78,16 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       ),
       appBar: AppBar(
         title: Obx(() => Text(cc.selectedCategory.value)),
+        centerTitle: true,
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
         elevation: 0.5,
         actions: [
+          // 툴팁 버튼
+          IconButton(
+            icon: const Icon(Icons.question_mark_rounded),
+            onPressed: () => Navigator.of(context).push(_createHelpPageRoute()),
+          ),
           // 추가 아이콘
           IconButton(
             icon: const Icon(Icons.add),
@@ -95,6 +110,23 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             )
           ) 
         )
+    );
+  }
+
+  Route _createHelpPageRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => HelpWidget(), 
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var tween = Tween(begin: begin, end: end);
+        var offsetTransition = animation.drive(tween);
+        
+        return SlideTransition(
+          position: offsetTransition, 
+          child: child
+        );
+      }
     );
   }
 }
